@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+
+  "name": "MyLingva - improve your vocabulary",
+  "description": "Helps you learn and retain new words in different languages.",
+  "version": "1.0",
+
+  "background": {
+    "persistent": false,
+    "scripts": ["main.js"]
+  },
+
+  "browser_action": {
+    "default_icon": "icon.png"
+  },
+
+  "commands": {
+  },
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "notifications"
+  ],
+
+  "optional_permissions": [
+    "tabs",
+    "https://*/",
+    "http://*/"
+  ],
+
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'"
+}
