@@ -1,0 +1,93 @@
+// This proto should be updated to reflect more relations between words and
+// contexts to those words. Also context data has to be split from words 
+// itself for more effitient storage schema.
+
+enum AuthType {
+  GOOGLE = 1;
+}
+
+enum Lang {
+  ENGLISH = 1;
+  UKRAINIAN = 2;
+}
+
+enum WordStatus {
+  // User response is not recorder.
+  NONE = 1;
+  // Known to the user.
+  KNOWN = 2;
+  // User is familiar with this word.
+  FAMILIAR = 3;
+  // Unknown to the user.
+  UNKNOWN = 4;
+  // Explicitly ignored by the user.
+  IGNORED = 5;
+}
+
+message UserData {
+  required LoginInfo login_info = 1;
+  required UserInfo user_info = 2;
+  repeated LangDic language_dic = 3;
+}
+
+message LoginInfo {
+  required AuthType auth_type = 1 [default=GOOGLE];
+  required string user_name = 2;
+  optional string email = 3;
+}
+
+message LangLevel {
+  required Lang lang = 1;
+  // Number from 0 to
+  required int32 level = 2;
+}
+
+message UserInfo {
+  optional string first_name = 1;
+  optional string last_name = 2;
+  optional string nickname = 3;
+  repeated Lang native_lang = 4;
+  // Other languages user has chosen as interesting to him.
+  repeated Lang lang = 5;
+}
+
+message LangDic {
+  required Lang language = 1;
+  repeated Word word = 2;
+}
+
+message Word {
+  required Lang language = 1;
+  required string word = 2;
+  required WordStatus status = 3;
+  repeated WordDesc desc = 4;
+  repeated Synonym synonym = 5;
+  repeated WordCtx context = 6;
+}
+
+message WordDesc {
+  // Language of this description not the owning word.
+  required Lang language = 1;
+  required string desc = 2;
+  optional SourceInfo source = 3;
+}
+
+message Synonym {
+  required Lang language = 1;
+  required string word = 2;
+  optional SourceInfo source = 3;
+}
+
+message WordCtx {
+  // Language of the context is always the same as language of the owning word.
+  required string sentence = 1;
+  optional SourceInfo source = 2;
+  // We might wanna add position of the word in that sentence since it's might not be the same word.
+}
+
+// Describes where the information is coming from.
+message SourceInfo {
+  // Can be url link and/or name of the source.
+  // TODO(volodya): Define this.
+}
+
