@@ -7,7 +7,12 @@
 
   "background": {
     "persistent": false,
-    "scripts": ["main.js"]
+    "scripts": [
+      "models.js",
+      "localdb.js",
+      "reading-state.js",
+      "main.js"
+    ]
   },
 
   "browser_action": {
