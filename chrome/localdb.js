@@ -4,6 +4,8 @@
  * @constructor
  */
 LocalDb = function() {
+  /** @type {!Storage} */
+  this.storage_ = localStorage;
 };
 
 /**
@@ -13,7 +15,8 @@ LocalDb = function() {
  * @return {Word}
  */
 LocalDb.prototype.lookup = function(wordKey) {
-  throw new Error('Not implemented');
+  var value = this.fetchStorageObject_(wordKey);
+  return value ? value.word : null;
 };
 
 /**
@@ -43,7 +46,13 @@ LocalDb.prototype.lookupContexts = function(wordKey, opt_limit) {
  * @param {!Word} word
  */
 LocalDb.prototype.save = function(word) {
-  throw new Error('Not implemented');
+  var value = this.fetchStorageObject_(word);
+  if (value) {
+    value.word = word;
+  } else {
+    value = this.createWordStorageObject_(word);
+  }
+  this.saveStorageObject_(word, value);
 };
 
 /**
@@ -63,4 +72,69 @@ LocalDb.prototype.addRelation = function(wordKey, relation) {
  */
 LocalDb.prototype.addContext = function(wordKey, context) {
   throw new Error('Not implemented');
+};
+
+/**
+ * @param {!Word|!WordKey} word
+ * @return {string}
+ * @private
+ */
+LocalDb.prototype.getWordStorageKey_ = function(word) {
+  if (!(word.lang && word.word)) {
+    throw new Error('Both word.lang and word.word must be set.');
+  }
+  return 'w-' + word.lang + '-' + word.word;
+};
+
+/**
+ * @param {!Object} obj
+ * @returns {string}
+ * @private
+ */
+LocalDb.prototype.serialize_ = function(obj) {
+  return JSON.stringify(obj);
+};
+
+/**
+ * @param {string} jsonString
+ * @returns {!Object}
+ * @private
+ */
+LocalDb.prototype.deserialize_ = function(jsonString) {
+  return JSON.parse(jsonString);
+};
+
+/**
+ * @return {!Object}
+ * @private
+ */
+LocalDb.prototype.createWordStorageObject_ = function(word, opt_contexts, opt_relations) {
+  return {
+    'word': word,
+    'contexts': opt_contexts,
+    'relations': opt_relations
+  }
+};
+
+/**
+ * @private {!Word|!WordKey}
+ * @return {!Object}
+ * @private
+ */
+LocalDb.prototype.fetchStorageObject_ = function(wordKey) {
+  var key = this.getWordStorageKey_(wordKey);
+  var value = this.storage_.getItem(key);
+  var result = value ? this.deserialize_(value) : null;
+  return result;
+};
+
+/**
+ * @param {!Word|!WordKey} wordKey
+ * @param {!Object} storageObj
+ * @private
+ */
+LocalDb.prototype.saveStorageObject_ = function(wordKey, storageObj) {
+  var key = this.getWordStorageKey_(wordKey);
+  var value = this.serialize_(storageObj);
+  this.storage_.setItem(key, value);
 };
