@@ -17,8 +17,12 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     console.log('language', language, tab);
     var onInjected = function() {
       console.log('injected');
-      chrome.tabs.sendMessage(tab.id, 'getText', {}, function() {
-         console.log('after getText', arguments);
+      chrome.tabs.sendMessage(tab.id, 'getText', function() {
+        console.log('after getText', arguments);
+    	
+        var wordManager = new WordManager(arguments[0].data, language);
+        wordManager.processWords();
+         
       });
     };
     var url = new URL(tab.url);
