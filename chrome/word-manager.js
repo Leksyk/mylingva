@@ -63,6 +63,6 @@ WordManager.prototype.saveWords_ = function(words) {
 	
   for (var i = 0; i < words.length; i++) {
     this.localDb_.save({'lang' : language,
-						'word' : words[i]});
+			'word' : words[i]});
   }
 };
