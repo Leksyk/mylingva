@@ -1,4 +1,3 @@
-
 function getDocumentText(document) {
   return document.all[0].innerText;
 }

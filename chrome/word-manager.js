@@ -7,7 +7,7 @@
  */
 WordManager = function(text, language) {
   this.text_ = text;
-  this.language_ = language;
+  this.language_ = this.getLanguageName_(language);
   this.localDb_ = new LocalDb();
 };
 
@@ -15,7 +15,7 @@ WordManager = function(text, language) {
  * Parses the text and saves the resulting words.
  */
 WordManager.prototype.processWords = function() {
-  if (this.language_ != 'en' && this.language_ != 'uk') {
+  if (this.language_ != Lang.ENGLISH && this.language_ != Lang.UKRAINIAN) {
     throw new Error('Language not supported');
   }
 
@@ -43,26 +43,29 @@ WordManager.prototype.parseWords_ = function() {
 
 /**
  * Returns the language's name in the Lang enum.
+ * @param {string} words
  * @returns {Lang}
  */
-WordManager.prototype.getLanguageName_ = function() {
-  if(this.language_ == 'en') {
-    return Lang.ENGLISH;
-  }
-  else if(this.language_ == 'uk') {
-    return Lang.UKRAINIAN;
-  }
+WordManager.prototype.getLanguageName_ = function(language) {
+  var langMap = {'en': Lang.ENGLISH,
+		         'uk': Lang.UKRAINIAN};
+ 
+  return langMap[language];
 };
 
 /**
  * Saves words to the LocalDb.
- * @param words
+ * @param {Array} words
  */
 WordManager.prototype.saveWords_ = function(words) {
-  var language = this.getLanguageName_();
-	
   for (var i = 0; i < words.length; i++) {
-    this.localDb_.save({'lang' : language,
-			'word' : words[i]});
+	  var savedWord = this.localDb_.lookup(new Word(words[i], this.language_));
+	 
+	if (savedWord) {
+		savedWord.numTimesSeen++;
+		this.localDb_.save(savedWord);	
+	} else {
+	  this.localDb_.save(new Word(words[i], this.language_));	
+	}
   }
 };

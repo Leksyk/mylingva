@@ -1,5 +1,3 @@
-console.log('on inject', document, window);
-
 function getDocumentText(document) {
   return document.all[0].innerText;
 }
