@@ -50,7 +50,7 @@ WordManager.prototype.processWords_ = function(text, domElement) {
     throw new Error('Language not supported');
   }
 
-  wordsFromText = this.parseWords_(text);
+  var wordsFromText = this.parseWords_(text);
   
   this.saveWordsToLocalDb_(wordsFromText);
   //this.saveWordsToReadingState_(wordsFromText, domElement); /* TODO: Discuss DOM Element */
@@ -76,7 +76,7 @@ WordManager.prototype.parseWords_ = function(text) {
 
 /**
  * Returns the language's name in the Lang enum.
- * @param {string} words
+ * @param {string} language
  * @returns {Lang}
  */
 WordManager.prototype.getLanguageName_ = function(language) {
@@ -103,13 +103,15 @@ WordManager.prototype.saveWordsToReadingState_ = function(words, domElement) {
  */
 WordManager.prototype.saveWordsToLocalDb_ = function(words) {
   for (var i = 0; i < words.length; i++) {
-	var savedWord = this.localDb_.lookup(new WordKey(words[i], this.language_));
+	  var savedWord = this.localDb_.lookup(new WordKey(words[i], this.language_));
  
-	if (savedWord) {
-		savedWord.numTimesSeen++;
-		this.localDb_.save(savedWord);	
-	} else {
-	  this.localDb_.save(new WordKey(words[i], this.language_));	
-	}
+    if (savedWord) {
+      // TODO: More changes can come from reading-state.
+      savedWord.numTimesSeen++;
+      this.localDb_.save(savedWord);
+    } else {
+      // TODO: The right status has to come from the reading-state.
+      this.localDb_.save(new Word(words[i], this.language_, WordStatus.UNKNOWN, 0, 0));
+    }
   }
 };
