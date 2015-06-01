@@ -24,8 +24,33 @@ WordStatus = {
 };
 
 WordKey = function(word, lang) {
+  if (!word || !lang) {
+    throw new Error('Both "lang" and "word" must be set.');
+  }
   this.word = word;
   this.lang = lang;
+};
+
+/**
+ * @returns {string} representation of the word key.
+ */
+WordKey.prototype.valueOf = function() {
+  if (!(this.lang && this.word)) {
+    throw new Error('Both "lang" and "word" must be set.');
+  }
+  return this.lang + '-' + this.word;
+};
+
+/**
+ * Symmetrical to valueOf() function.
+ * @param {string} value
+ * @return {!WordKey}
+ */
+WordKey.parse = function(value) {
+  var sep = value.indexOf('-');
+  var lang = Number.parse(value.substring(0, sep));
+  var word = value.substring(sep + 1);
+  return new WordKey(word, lang);
 };
 
 /**
@@ -35,18 +60,23 @@ WordKey = function(word, lang) {
  * @param word
  * @param {!Lang} lang
  * @param {!WordStatus} status
- * @param {number} numTimesSeen how many times user's seen this word in a text?
- * @param {number} numTimesUsed how many times user's used this word on his own.
+ * @param {?number} opt_numTimesSeen how many times user's seen this word in a text?
+ * @param {?number} opt_numTimesUsed how many times user's used this word on his own.
  * @constructor
  */
-Word = function(word, lang, status, numTimesSeen, numTimesUsed) {
+Word = function(word, lang, status, opt_numTimesSeen, opt_numTimesUsed) {
+  if (!word || !lang || !status) {
+    throw new Error('Both "lang" and "word" must be set.');
+  }
   this.word = word;
   this.lang = lang;
   this.status = status;
-  this.numTimesSeen = numTimesSeen;
-  this.numTimesUsed = numTimesUsed;
+  this.numTimesSeen = opt_numTimesSeen;
+  this.numTimesUsed = opt_numTimesUsed;
   // TODO: How about 'part of speech'?
 };
+
+Word.prototype.valueOf = WordKey.prototype.valueOf;
 
 /**
  * How one word is related to the other.

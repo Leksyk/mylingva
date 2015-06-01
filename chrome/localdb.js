@@ -80,10 +80,7 @@ LocalDb.prototype.addContext = function(wordKey, context) {
  * @private
  */
 LocalDb.prototype.getWordStorageKey_ = function(word) {
-  if (!(word.lang && word.word)) {
-    throw new Error('Both word.lang and word.word must be set.');
-  }
-  return 'w-' + word.lang + '-' + word.word;
+  return 'w-' + word.valueOf();
 };
 
 /**
