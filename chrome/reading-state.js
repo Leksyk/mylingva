@@ -23,7 +23,6 @@ ReadingState.prototype.addWord = function(word, domElement) {
     throw Error(message);
   }
   this.words[domElement] = word;
-  throw new Error('Not implemented');
 };
 
 /**

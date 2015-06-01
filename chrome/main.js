@@ -1,13 +1,12 @@
-
-function getDocumentText(document) {
-  return document.all[0].innerText;
+function getDocumentContent(document) {
+	return document.documentElement.outerHTML;
 }
 
 // Content scripts registration.
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
       if(request.method == "getText") {
-        sendResponse({data: getDocumentText(document), method: "getText"});
+        sendResponse({data: getDocumentContent(document), method: "getText"});
       }
     }
 );
@@ -17,8 +16,12 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     console.log('language', language, tab);
     var onInjected = function() {
       console.log('injected');
-      chrome.tabs.sendMessage(tab.id, 'getText', {}, function() {
-         console.log('after getText', arguments);
+      chrome.tabs.sendMessage(tab.id, 'getText', function() {
+        console.log('after getText', arguments);
+    	
+        var wordManager = new WordManager(arguments[0].data, language);
+        wordManager.processPageContent();
+         
       });
     };
     var url = new URL(tab.url);

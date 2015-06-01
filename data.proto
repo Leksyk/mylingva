@@ -9,6 +9,7 @@ enum AuthType {
 enum Lang {
   ENGLISH = 1;
   UKRAINIAN = 2;
+  ROMANIAN = 3;
 }
 
 enum WordStatus {
