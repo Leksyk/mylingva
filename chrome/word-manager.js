@@ -5,12 +5,12 @@
  * @param {string} language
  * @constructor
  */
-WordManager = function(text, language) {
+WordManager = function(text, language, localDb) {
   this.text_ = text;
   this.language_ = this.getLanguageName_(language);
   
   this.localDb_ = new LocalDb();
-  this.readingState_ = new ReadingState();
+  this.readingState_ = new ReadingState(localDb);
 };
 
 /**
@@ -45,11 +45,6 @@ WordManager.prototype.processDomElement_ = function(domElement) {
  * @param {Element} domElement
  */
 WordManager.prototype.processWords_ = function(text, domElement) {
-  if (this.language_ != Lang.ENGLISH && this.language_ != Lang.UKRAINIAN
-		  && this.language_ != Lang.ROMANIAN) {
-    throw new Error('Language not supported');
-  }
-
   var wordsFromText = this.parseWords_(text);
   
   this.saveWordsToLocalDb_(wordsFromText);
@@ -80,11 +75,17 @@ WordManager.prototype.parseWords_ = function(text) {
  * @returns {Lang}
  */
 WordManager.prototype.getLanguageName_ = function(language) {
-  var langMap = {'en': Lang.ENGLISH,
-		         'uk': Lang.UKRAINIAN,
-		         'ro': Lang.ROMANIAN};
+  var langMap = {
+      'en': Lang.ENGLISH,
+		  'uk': Lang.UKRAINIAN,
+		  'ro': Lang.ROMANIAN};
  
-  return langMap[language];
+  var result = langMap[language];
+  if (!result) {
+    // TODO: User needs a nice dialog with an explanation.
+    throw new Error('Not supported language: ' + language);
+  }
+  return result;
 };
 
 /**
@@ -99,19 +100,18 @@ WordManager.prototype.saveWordsToReadingState_ = function(words, domElement) {
 
 /**
  * Saves words to the LocalDb.
- * @param {Array} words
+ * @param {!Array<string>} words
  */
 WordManager.prototype.saveWordsToLocalDb_ = function(words) {
-  for (var i = 0; i < words.length; i++) {
-	  var savedWord = this.localDb_.lookup(new WordKey(words[i], this.language_));
- 
+  words.forEach(function(word) {
+    var savedWord = this.localDb_.lookup(new WordKey(word, this.language_));
     if (savedWord) {
       // TODO: More changes can come from reading-state.
       savedWord.numTimesSeen++;
       this.localDb_.save(savedWord);
     } else {
       // TODO: The right status has to come from the reading-state.
-      this.localDb_.save(new Word(words[i], this.language_, WordStatus.UNKNOWN, 0, 0));
+      this.localDb_.save(new Word(word, this.language_, WordStatus.UNKNOWN, 0, 0));
     }
-  }
+  }, this);
 };

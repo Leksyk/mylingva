@@ -19,7 +19,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
       chrome.tabs.sendMessage(tab.id, 'getText', function() {
         console.log('after getText', arguments);
     	
-        var wordManager = new WordManager(arguments[0].data, language);
+        var wordManager = new WordManager(arguments[0].data, language, new LocalDb());
         wordManager.processPageContent();
          
       });

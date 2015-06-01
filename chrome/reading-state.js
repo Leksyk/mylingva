@@ -97,5 +97,5 @@ ReadingState.prototype.updateLocalDb = function(addContexts) {
       }
       this.locaDb_.save(word);
     }
-  }.bind(this));
+  }, this);
 };
