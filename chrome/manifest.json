@@ -10,8 +10,6 @@
     "scripts": [
       "models.js",
       "localdb.js",
-      "reading-state.js",
-      "word-manager.js",
       "main.js"
     ]
   },

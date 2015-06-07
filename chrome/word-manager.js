@@ -5,12 +5,10 @@
  * @param {string} language
  * @constructor
  */
-WordManager = function(text, language, localDb) {
+WordManager = function(text, language) {
   this.text_ = text;
   this.language_ = this.getLanguageName_(language);
-  
-  this.localDb_ = new LocalDb();
-  this.readingState_ = new ReadingState(localDb);
+  this.readingState_ = new ReadingState(false);
 };
 
 /**
@@ -28,6 +26,7 @@ WordManager.prototype.processPageContent = function() {
  * @param {Element} domElement
  */
 WordManager.prototype.processDomElement_ = function(domElement) {
+  // TODO: Take care of the invisible elements on the original page.
 	for (var i = 0; i < domElement.children.length; i++) {
 		if (domElement.children[i].children.length > 0) {
 			this.processDomElement_(domElement.children[i]);
@@ -46,9 +45,8 @@ WordManager.prototype.processDomElement_ = function(domElement) {
  */
 WordManager.prototype.processWords_ = function(text, domElement) {
   var wordsFromText = this.parseWords_(text);
-  
-  this.saveWordsToLocalDb_(wordsFromText);
-  //this.saveWordsToReadingState_(wordsFromText, domElement); /* TODO: Discuss DOM Element */
+
+  this.saveWordsToReadingState_(wordsFromText, domElement);
 };
 
 /**
@@ -59,7 +57,7 @@ WordManager.prototype.parseWords_ = function(text) {
   var splitText = text.split(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s]/);
 	
   var words = [];
-	
+  // TODO: Add words to the reading-state as we iterate through the elements.
   for (var i = 0; i < splitText.length; i++) {
     if (splitText[i] != "") {
       words.push(splitText[i].toLowerCase());
@@ -91,27 +89,10 @@ WordManager.prototype.getLanguageName_ = function(language) {
 /**
  * Saves words to the ReadingState.
  * @param {Array} words
+ * @param {!Element} domElement
  */
 WordManager.prototype.saveWordsToReadingState_ = function(words, domElement) {
   for (var i = 0; i < words.length; i++) {
-    this.readingState_.addWord(words[i], domElement);
+    this.readingState_.addWord(new WordKey(words[i], this.language_), domElement, null);
   }
-};
-
-/**
- * Saves words to the LocalDb.
- * @param {!Array<string>} words
- */
-WordManager.prototype.saveWordsToLocalDb_ = function(words) {
-  words.forEach(function(word) {
-    var savedWord = this.localDb_.lookup(new WordKey(word, this.language_));
-    if (savedWord) {
-      // TODO: More changes can come from reading-state.
-      savedWord.numTimesSeen++;
-      this.localDb_.save(savedWord);
-    } else {
-      // TODO: The right status has to come from the reading-state.
-      this.localDb_.save(new Word(word, this.language_, WordStatus.UNKNOWN, 0, 0));
-    }
-  }, this);
 };
