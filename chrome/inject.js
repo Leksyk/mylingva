@@ -1,5 +1,5 @@
 function getDocumentContent(document) {
-  return document.documentElement.outerHTML;
+  return document.documentElement;
 }
 
 function init(language) {

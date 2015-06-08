@@ -1,12 +1,12 @@
 function getDocumentContent(document) {
-	return document.documentElement.outerHTML;
+	return document.documentElement;
 }
 
 // Content scripts registration.
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
-      if(request.method == "getText") {
-        sendResponse({data: getDocumentContent(document), method: "getText"});
+      if(request.method == "getDocumentContent") {
+        sendResponse({data: getDocumentContent(document), method: "getDocumentContent"});
       }
     }
 );
@@ -41,6 +41,7 @@ function initClientScript(tabId, language) {
  */
 var CLIENT_SCRIPTS = [
   'models.js',
+  'helpers.js',
   'reading-state.js',
   'word-manager.js',
   'inject.js'

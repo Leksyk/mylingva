@@ -1,24 +1,21 @@
 /**
  * Handles the parsing of the page content as well as saving the words.
  *
- * @param {string} text
+ * @param {Element} pageContent
  * @param {string} language
  * @constructor
  */
-WordManager = function(text, language) {
-  this.text_ = text;
+WordManager = function(pageContent, language) {
+  this.pageContent_ = pageContent;
   this.language_ = this.getLanguageName_(language);
   this.readingState_ = new ReadingState(false);
 };
 
 /**
- * Converts the page text HTML string into an Element Object and calls the processing function.
+ * Calls the DOM traversal function starting from the pageContent Element.
  */
 WordManager.prototype.processPageContent = function() {
-  var parser = new DOMParser();
-  var domElement = parser.parseFromString(this.text_, "text/xml");
-	
-  this.processDomElement_(domElement);
+  this.processDomElement_(this.pageContent_);
 };
 
 /**
@@ -26,16 +23,52 @@ WordManager.prototype.processPageContent = function() {
  * @param {Element} domElement
  */
 WordManager.prototype.processDomElement_ = function(domElement) {
-  // TODO: Take care of the invisible elements on the original page.
-	for (var i = 0; i < domElement.children.length; i++) {
-		if (domElement.children[i].children.length > 0) {
-			this.processDomElement_(domElement.children[i]);
-		} else {
-			if (domElement.children[i].textContent) {
-				this.processWords_(domElement.children[i].textContent, domElement.children[i]);
-			}
-		}
+  for (var i = 0; i < domElement.children.length; i++) {
+    if (domElement.children[i].children.length > 0 &&
+        isDomElementVisible(domElement.children[i])) {
+      this.processDomElement_(domElement.children[i]);
+      
+      for (j = 0; j < domElement.children[i].childNodes.length; j++) {
+        if (domElement.children[i].childNodes[j].nodeType == 3) {
+       	  this.processText_(domElement.children[i].childNodes[j].textContent, domElement.children[i]);	  
+   	    }
+      }
+    } else {
+      if (domElement.children[i].textContent && isDomElementVisible(domElement.children[i])) {
+	    this.processText_(domElement.children[i].textContent, domElement.children[i]);
+	  }
 	}
+  }
+};
+
+/**
+ * Parses the text into sentences and calls the word processing function.
+ * @param {string} text
+ * @param {Element} domElement
+ */
+WordManager.prototype.processText_ = function(text, domElement) {
+  var sentencesFromText = this.parseSentences_(text);
+	
+  for (i = 0; i < sentencesFromText.length; i++) {
+    this.processWords_ (sentencesFromText[i], domElement);
+  }
+};
+
+/**
+ * Parses the given text into sentences, returning a sentence array.
+ * @returns {Array}
+ */
+WordManager.prototype.parseSentences_ = function(text) {
+  var splitText = text.split(/[.!?;]+/);
+	
+  var sentences = [];
+  for (var i = 0; i < splitText.length; i++) {
+    if (splitText[i].toLowerCase().match(/[a-z]/i)) {
+      sentences.push(formatSentence(splitText[i]));
+    }
+  }
+	
+  return sentences;
 };
 
 /**
@@ -44,27 +77,13 @@ WordManager.prototype.processDomElement_ = function(domElement) {
  * @param {Element} domElement
  */
 WordManager.prototype.processWords_ = function(text, domElement) {
-  var wordsFromText = this.parseWords_(text);
-
-  this.saveWordsToReadingState_(wordsFromText, domElement);
-};
-
-/**
- * Parses the given text by blank spaces and separators, returning a lower case word array.
- * @returns {Array}
- */
-WordManager.prototype.parseWords_ = function(text) {
   var splitText = text.split(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s]/);
-	
-  var words = [];
-  // TODO: Add words to the reading-state as we iterate through the elements.
+
   for (var i = 0; i < splitText.length; i++) {
-    if (splitText[i] != "") {
-      words.push(splitText[i].toLowerCase());
-    }
+    if (splitText[i].toLowerCase()) {
+	  this.readingState_.addWord(new WordKey(splitText[i], this.language_), domElement, null);
+	}
   }
-  
-  return words;
 };
 
 /**
@@ -80,19 +99,7 @@ WordManager.prototype.getLanguageName_ = function(language) {
  
   var result = langMap[language];
   if (!result) {
-    // TODO: User needs a nice dialog with an explanation.
-    throw new Error('Not supported language: ' + language);
+	  alert("MyLingva does not support the page's langauge yet.");
   }
   return result;
-};
-
-/**
- * Saves words to the ReadingState.
- * @param {Array} words
- * @param {!Element} domElement
- */
-WordManager.prototype.saveWordsToReadingState_ = function(words, domElement) {
-  for (var i = 0; i < words.length; i++) {
-    this.readingState_.addWord(new WordKey(words[i], this.language_), domElement, null);
-  }
 };
