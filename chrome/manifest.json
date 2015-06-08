@@ -8,9 +8,9 @@
   "background": {
     "persistent": false,
     "scripts": [
-      "models.js",
-      "localdb.js",
-      "main.js"
+      "common/models.js",
+      "host/localdb.js",
+      "host/main.js"
     ]
   },
 

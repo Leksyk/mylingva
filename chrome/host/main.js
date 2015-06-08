@@ -40,11 +40,11 @@ function initClientScript(tabId, language) {
  * @const {!Array<string>}
  */
 var CLIENT_SCRIPTS = [
-  'models.js',
-  'helpers.js',
-  'reading-state.js',
-  'word-manager.js',
-  'inject.js'
+  'common/models.js',
+  'page/helpers.js',
+  'page/reading-state.js',
+  'page/word-manager.js',
+  'page/main.js'
 ];
 
 chrome.browserAction.onClicked.addListener(function(tab) {

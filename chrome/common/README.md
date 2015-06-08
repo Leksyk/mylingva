@@ -1,0 +1,1 @@
+Files in this directory are shared between the extension code and target page injection code.
