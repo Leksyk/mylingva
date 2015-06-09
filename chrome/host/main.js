@@ -1,15 +1,3 @@
-function getDocumentContent(document) {
-	return document.documentElement;
-}
-
-// Content scripts registration.
-chrome.runtime.onMessage.addListener(
-    function(message, sender, sendResponse) {
-      if(request.method == "getDocumentContent") {
-        sendResponse({data: getDocumentContent(document), method: "getDocumentContent"});
-      }
-    }
-);
 
 function injectScripts(tabId, scripts, callback) {
   // Recursively pass itself to the callback to executeScript until all the scripts are loaded.
@@ -22,15 +10,69 @@ function injectScripts(tabId, scripts, callback) {
   }, callback);
 }
 
+/**
+ * Accepts the list of words, retrieves their statuses and sends the update message to the given
+ * tab to update its word statuses.
+ *
+ * @param {number} tabId
+ * @param {string} wordKeyStrs - string representation of WordKey.
+ */
+function communicateWordsStatuses(tabId, wordKeyStrs) {
+  console.log('communicate words statuses', arguments);
+  var result = {};
+  var localDb = new LocalDb();
+  for (var wordKeyStr of wordKeyStrs) {
+    var word = localDb.lookup(WordKey.parse(wordKeyStr));
+    result[wordKeyStr] = word ? word.status : WordStatus.UNKNOWN;
+  }
+  chrome.tabs.sendMessage(tabId, {
+    method: 'set-words-statuses',
+    wordToStatus: result
+  });
+}
+
+/**
+ * Initializes the extension code on the target page side.
+ *
+ * @param {number} tabId
+ * @param {!Lang} language
+ */
 function initClientScript(tabId, language) {
-  console.log('injected');
   chrome.tabs.sendMessage(tabId, {
     method: 'init',
     language: language
-  }, function() {
-    // TODO: Make init return the actual list of words found.
-    // TODO: Issue another event that would update client side on statuses of those words.
-    console.log('init responded with', arguments);
+  }, communicateWordsStatuses.bind(null, tabId));
+}
+
+/**
+ * Converts language code to Lang enum.
+ *
+ * @param {string} langCode
+ * @returns {!Lang}
+ */
+function getLanguageEnum(langCode) {
+  var langMap = {
+    'en': Lang.ENGLISH,
+    'uk': Lang.UKRAINIAN,
+    'ro': Lang.ROMANIAN
+  };
+  var result = langMap[langCode];
+  if (!result) {
+    alert("MyLingva does not support " + langCode + " yet.");
+    throw new Error("Unsupported langCode: " + langCode);
+  }
+  return result;
+}
+
+/**
+ * Asynchronously detects language of the given tab and passes it to the callback.
+ * @param {number} tabId
+ * @param {Function<!Lang>} callback
+ */
+function detectLanguage(tabId, callback) {
+  chrome.tabs.detectLanguage(tabId, function(langCode) {
+    var lang = getLanguageEnum(langCode);
+    callback(lang);
   });
 }
 
@@ -48,7 +90,7 @@ var CLIENT_SCRIPTS = [
 ];
 
 chrome.browserAction.onClicked.addListener(function(tab) {
-  chrome.tabs.detectLanguage(tab.id, function(language) {
+  detectLanguage(tab.id, function(language) {
     console.log('language', language, tab);
     var url = new URL(tab.url);
     var domain = url.protocol + '//' + url.hostname + '/';

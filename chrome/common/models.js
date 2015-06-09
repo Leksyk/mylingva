@@ -48,7 +48,7 @@ WordKey.prototype.valueOf = function() {
  */
 WordKey.parse = function(value) {
   var sep = value.indexOf('-');
-  var lang = Number.parse(value.substring(0, sep));
+  var lang = Number.parseInt(value.substring(0, sep));
   var word = value.substring(sep + 1);
   return new WordKey(word, lang);
 };

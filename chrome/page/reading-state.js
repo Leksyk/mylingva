@@ -53,10 +53,37 @@ ReadingState.prototype.updateWordStatus = function(wordKey, status) {
 /**
  * Return the status of the given word key.
  * @param {!WordKey} wordKey
- * @returns {!WordStatus}
+ * @return {!WordStatus}
  */
 ReadingState.prototype.getWordStatus = function(wordKey) {
   return this.wordStatuses.get(wordKey.valueOf());
+};
+
+/**
+ * Returns all the words it holds.
+ *
+ * @return {!Array<string>} each element is a string representation of a WordKey.
+ */
+ReadingState.prototype.getWordsKeyStrs = function() {
+  var result = [];
+  for (var word of this.wordsStatuses_.keys()) {
+    result.push(word);
+  }
+  console.log('getWordsKeyStrs', result);
+  return result;
+};
+
+/**
+ * Updates words in reading state with the provided mapping to statuses.
+ *
+ * @param {!Object<string, !WordStatus>} wordKeyStrToStatus - word is string repr of WordKey.
+ */
+ReadingState.prototype.setWordsStatuses = function(wordKeyStrToStatus) {
+  console.log('setWordsStatuses', wordKeyStrToStatus);
+  for (var wordKeyStr of Object.keys(wordKeyStrToStatus)) {
+    this.wordsStatuses_.set(wordKeyStr, wordKeyStrToStatus[wordKeyStr]);
+  }
+  console.log('after settings statuses', this.wordsStatuses_);
 };
 
 /**

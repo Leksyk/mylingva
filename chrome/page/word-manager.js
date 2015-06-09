@@ -1,14 +1,14 @@
 /**
  * Handles the parsing of the page content as well as saving the words.
  *
- * @param {Element} pageContent
- * @param {string} language
+ * @param {!Element} pageContent
+ * @param {!Lang} language
  * @constructor
  */
-WordManager = function(pageContent, language) {
+WordManager = function(pageContent, language, readingState) {
   this.pageContent_ = pageContent;
-  this.language_ = this.getLanguageName_(language);
-  this.readingState_ = new ReadingState(false);
+  this.language_ = language;
+  this.readingState_ = readingState;
 };
 
 /**
@@ -86,20 +86,3 @@ WordManager.prototype.processWords_ = function(text, domElement) {
   }
 };
 
-/**
- * Returns the language's name in the Lang enum.
- * @param {string} language
- * @returns {Lang}
- */
-WordManager.prototype.getLanguageName_ = function(language) {
-  var langMap = {
-      'en': Lang.ENGLISH,
-		  'uk': Lang.UKRAINIAN,
-		  'ro': Lang.ROMANIAN};
- 
-  var result = langMap[language];
-  if (!result) {
-	  alert("MyLingva does not support the page's langauge yet.");
-  }
-  return result;
-};
