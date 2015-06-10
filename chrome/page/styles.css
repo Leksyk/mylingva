@@ -1,0 +1,15 @@
+span.mylingva-known-word {
+  color: black !important;
+}
+
+span.mylingva-unknown-word {
+  color: orangered !important;
+}
+
+span.mylingva-familiar-word {
+  color: firebrick !important;
+}
+
+span.mylingva-ignored-word {
+  color: darkslategray !important;
+}

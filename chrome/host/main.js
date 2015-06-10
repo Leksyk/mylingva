@@ -10,6 +10,13 @@ function injectScripts(tabId, scripts, callback) {
   }, callback);
 }
 
+function injectCss(tabId, file, callback) {
+  chrome.tabs.insertCSS(tabId, {
+    file: file,
+    runAt: 'document_idle'
+  }, callback);
+}
+
 /**
  * Accepts the list of words, retrieves their statuses and sends the update message to the given
  * tab to update its word statuses.
@@ -40,6 +47,7 @@ function communicateWordsStatuses(tabId, wordKeyStrs) {
 function initClientScript(tabId, language) {
   chrome.tabs.sendMessage(tabId, {
     method: 'init',
+    extId: chrome.runtime.id,
     language: language
   }, communicateWordsStatuses.bind(null, tabId));
 }
@@ -76,6 +84,9 @@ function detectLanguage(tabId, callback) {
   });
 }
 
+function saveWords() {
+}
+
 /**
  * Client-side scripts in order of their dependencies.
  *
@@ -100,10 +111,29 @@ chrome.browserAction.onClicked.addListener(function(tab) {
       origins: [domain]
     }, function(granted) {
       if (granted) {
-        injectScripts(tab.id, CLIENT_SCRIPTS, initClientScript.bind(null, tab.id, language));
+        function injectCssAndInit(tabId, language) {
+          // Do not wait for inject css since it's OK to have it finished after statuses arrive.
+          injectCss(tabId, 'page/styles.css', null);
+          initClientScript(tabId, language);
+        }
+        injectScripts(tab.id, CLIENT_SCRIPTS, injectCssAndInit.bind(null, tab.id, language));
       } else {
         throw Error('Permissions rejected');
       }
     });
+  });
+});
+
+chrome.runtime.onConnect.addListener(function(port) {
+  port.onMessage.addListener(function(msg) {
+    switch (msg.method) {
+      case 'save-words':
+        var words = JSON.parse(msg.words);
+        saveWords(words);
+        break;
+
+      default:
+        throw new Error('Unexpected message' + JSON.stringify(msg));
+    }
   });
 });

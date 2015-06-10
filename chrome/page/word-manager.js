@@ -3,6 +3,7 @@
  *
  * @param {!Element} pageContent
  * @param {!Lang} language
+ * @param {!ReadingState} readingState
  * @constructor
  */
 WordManager = function(pageContent, language, readingState) {
