@@ -44,7 +44,12 @@ WordManager.prototype.processText_ = function(text, domElement) {
     return;
   }
 	
-  var lastCharacter = text.substr(text.length - 1);  
+  var lastCharacter = text.substr(text.length - 1);
+  
+  if (lastCharacter != "!" && lastCharacter != "?" 
+      && lastCharacter != ".") {
+    lastCharacter = "";
+  }
   
   var sentencesFromText = this.parseSentences_(text + ".");
   var sentanceWrapper = document.createElement('span');
@@ -52,7 +57,7 @@ WordManager.prototype.processText_ = function(text, domElement) {
   for (i = 0; i < sentencesFromText.length; i++) {
 	if(i == sentencesFromText.length - 1) {
 		sentencesFromText[i] = sentencesFromText[i].substring(
-		    0, sentencesFromText[i].length - 2) + lastCharacter;
+		    0, sentencesFromText[i].length - 1) + lastCharacter;
 	}
     this.processWords_ (sentencesFromText[i], sentanceWrapper);
   }
@@ -75,9 +80,9 @@ WordManager.prototype.parseSentences_ = function(text) {
   for (var i = 0; i < splitText.length; i++) {
     if(splitText[i]) {
       sentences.push(splitText[i]);
-    }  
+    }
   }
-		
+
   return sentences;
 };
 
@@ -97,7 +102,7 @@ WordManager.prototype.getWordId_ = function(word) {
  */
 WordManager.prototype.processWords_ = function(text, domElement) {
   var splitText = text.split(/\s+/);
-  
+
   for (var i = 0; i < splitText.length; i++) {
     if (splitText[i]) {
       var wordSpan = document.createElement('span');
@@ -107,7 +112,9 @@ WordManager.prototype.processWords_ = function(text, domElement) {
       domElement.appendChild(wordSpan);	
       
       if (formatText(splitText[i].toLowerCase())) {
-	    this.readingState_.addWord(new WordKey(formatText(splitText[i].toLowerCase()), this.language_), wordSpan, null);
+	    this.readingState_.addWord(new WordKey(
+	        formatText(splitText[i].toLowerCase()),
+	        this.language_), wordSpan, null);
       }
     }
   }
