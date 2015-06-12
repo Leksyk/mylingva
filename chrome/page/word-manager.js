@@ -87,7 +87,7 @@ WordManager.prototype.parseSentences_ = function(text) {
  * @returns {String}
  */
 WordManager.prototype.getWordId_ = function(word) {
-	return "w-" + formatText(word) +"-" + this.language_;
+  return new WordKey(formatText(word), this.language_).valueOf();
 };
 
 /**
