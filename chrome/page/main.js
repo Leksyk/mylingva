@@ -1,5 +1,6 @@
 var readingState = null;
 var messagePort = null;
+var wordManager = null;
 
 function reconnectToExtension(extId) {
   if (messagePort) {
@@ -7,6 +8,8 @@ function reconnectToExtension(extId) {
       messagePort.disconnect();
     } finally {
       messagePort = null;
+      wordManager = null;
+      readingState = null;
     }
   }
   messagePort = chrome.runtime.connect(extId);
@@ -34,8 +37,12 @@ function init(extId, language) {
  * @param {!Object<string, !WordStatus>} wordToStatus - word is string representation of WordKey.
  */
 function setWordsStatuses(wordToStatus) {
+  console.log('setwords statuses', arguments);
   readingState.setWordsStatuses(wordToStatus);
-  // TODO: Now communicate this statuses to the DOM (e.g. by setting css-classes).
+  for (var wordKeyStr of Object.keys(wordToStatus)) {
+    var status = wordToStatus[wordKeyStr];
+    wordManager.updateWordStatus(wordKeyStr, status);
+  }
 }
 
 chrome.runtime.onMessage.addListener(
