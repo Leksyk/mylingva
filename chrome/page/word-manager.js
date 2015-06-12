@@ -24,21 +24,13 @@ WordManager.prototype.processPageContent = function() {
  * @param {Element} domElement
  */
 WordManager.prototype.processDomElement_ = function(domElement) {
-  for (var i = 0; i < domElement.children.length; i++) {
-    if (domElement.children[i].children.length > 0 &&
-        isDomElementVisible(domElement.children[i])) {
-      this.processDomElement_(domElement.children[i]);
-      
-      for (j = 0; j < domElement.children[i].childNodes.length; j++) {
-        if (domElement.children[i].childNodes[j].nodeType == 3) {
-       	  this.processText_(domElement.children[i].childNodes[j].textContent, domElement.children[i]);	  
-   	    }
-      }
-    } else {
-      if (domElement.children[i].textContent && isDomElementVisible(domElement.children[i])) {
-	    this.processText_(domElement.children[i].textContent, domElement.children[i]);
-	  }
-	}
+  if (domElement.nodeType == 3 && isDomElementVisible(domElement.parentNode)) {
+    this.processText_(domElement.textContent, domElement);	  
+  }
+	
+  var childNodeNumber = domElement.childNodes.length;
+  for (var i = 0; i < childNodeNumber; i++) {
+    this.processDomElement_(domElement.childNodes[i]);
   }
 };
 
@@ -48,42 +40,76 @@ WordManager.prototype.processDomElement_ = function(domElement) {
  * @param {Element} domElement
  */
 WordManager.prototype.processText_ = function(text, domElement) {
-  var sentencesFromText = this.parseSentences_(text);
-	
-  for (i = 0; i < sentencesFromText.length; i++) {
-    this.processWords_ (sentencesFromText[i], domElement);
+  if (!domElement.parentNode) {
+    return;
   }
+	
+  var lastCharacter = text.substr(text.length - 1);  
+  
+  var sentencesFromText = this.parseSentences_(text + ".");
+  var sentanceWrapper = document.createElement('span');
+  
+  for (i = 0; i < sentencesFromText.length; i++) {
+	if(i == sentencesFromText.length - 1) {
+		sentencesFromText[i] = sentencesFromText[i].substring(
+		    0, sentencesFromText[i].length - 2) + lastCharacter;
+	}
+    this.processWords_ (sentencesFromText[i], sentanceWrapper);
+  }
+  
+  domElement.parentNode.replaceChild(sentanceWrapper, domElement);
 };
 
 /**
  * Parses the given text into sentences, returning a sentence array.
  * @returns {Array}
  */
-WordManager.prototype.parseSentences_ = function(text) {
-  var splitText = text.split(/[.!?;]+/);
-	
+WordManager.prototype.parseSentences_ = function(text) {	
+  var splitText = text.match(/\(?[^\.\?\!]+[\.!\?]\)?/g);
+  
+  if (!splitText) {
+    return [text];
+  }
+
   var sentences = [];
   for (var i = 0; i < splitText.length; i++) {
-    if (splitText[i].toLowerCase().match(/[a-z]/i)) {
-      sentences.push(formatSentence(splitText[i]));
-    }
+    if(splitText[i]) {
+      sentences.push(splitText[i]);
+    }  
   }
-	
+		
   return sentences;
 };
 
 /**
- * Parses the text and saves the resulting words.
+ * Returns a unique ID for a given word in our detected language.
+ * @param word
+ * @returns {String}
+ */
+WordManager.prototype.getWordId_ = function(word) {
+	return "w-" + formatText(word) +"-" + this.language_;
+};
+
+/**
+ * Parses the text, saves the resulting words and wraps them inside spans in the DOM.
  * @param {string} text
  * @param {Element} domElement
  */
 WordManager.prototype.processWords_ = function(text, domElement) {
-  var splitText = text.split(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s]/);
-
+  var splitText = text.split(/\s+/);
+  
   for (var i = 0; i < splitText.length; i++) {
-    if (splitText[i].toLowerCase()) {
-	  this.readingState_.addWord(new WordKey(splitText[i], this.language_), domElement, null);
-	}
+    if (splitText[i]) {
+      var wordSpan = document.createElement('span');
+      
+      wordSpan.innerHTML = " " + splitText[i];
+      wordSpan.setAttribute("id", this.getWordId_(formatText(splitText[i].toLowerCase())));
+      domElement.appendChild(wordSpan);	
+      
+      if (formatText(splitText[i].toLowerCase())) {
+	    this.readingState_.addWord(new WordKey(formatText(splitText[i].toLowerCase()), this.language_), wordSpan, null);
+      }
+    }
   }
 };
 

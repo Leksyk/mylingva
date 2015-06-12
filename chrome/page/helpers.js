@@ -22,13 +22,12 @@ function isDomElementVisible(element) {
 }
 
 /**
- * Returns the formatted sentence: lower case, no special characters at the ends of the string, no extra spaces.
+ * Returns the formatted text: no special characters at the ends of the string, no extra spaces.
  * @param sentence
  * @returns {string}
  */
-function formatSentence(sentence) {
-  return sentence
-      .toLowerCase()
+function formatText(text) {
+  return text
 	  .replace(/(^[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s]+)/g, "")
 	  .replace(/([\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s]+$)/g, "")
 	  .trim();
