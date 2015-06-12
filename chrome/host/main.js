@@ -59,15 +59,9 @@ function initClientScript(tabId, language) {
  * @returns {!Lang}
  */
 function getLanguageEnum(langCode) {
-  var langMap = {
-    'en': Lang.ENGLISH,
-    'uk': Lang.UKRAINIAN,
-    'ro': Lang.ROMANIAN
-  };
-  var result = langMap[langCode];
+  var result = Lang.parse(langCode);
   if (!result) {
     alert("MyLingva does not support " + langCode + " yet.");
-    throw new Error("Unsupported langCode: " + langCode);
   }
   return result;
 }
@@ -101,11 +95,11 @@ var CLIENT_SCRIPTS = [
 ];
 
 chrome.browserAction.onClicked.addListener(function(tab) {
+  setupGoogleAnalytics();
   detectLanguage(tab.id, function(language) {
-    console.log('language', language, tab);
+    sendStartEvent(tab.incognito ? '' : tab.url, language);
     var url = new URL(tab.url);
     var domain = url.protocol + '//' + url.hostname + '/';
-    console.log('domain', domain);
     chrome.permissions.request({
       permissions: ['tabs'],
       origins: [domain]

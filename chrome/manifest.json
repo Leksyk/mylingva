@@ -9,6 +9,7 @@
     "persistent": false,
     "scripts": [
       "common/models.js",
+      "host/analytics.js",
       "host/localdb.js",
       "host/main.js"
     ]

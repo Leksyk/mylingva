@@ -10,6 +10,34 @@ Lang = {
   POLISH: 4
 };
 
+Lang.parse = function(langCode) {
+  return {
+    'en': Lang.ENGLISH,
+    'uk': Lang.UKRAINIAN,
+    'ro': Lang.ROMANIAN,
+    'pl': Lang.POLISH
+  }[langCode];
+};
+
+Lang.toCode = function(lang) {
+  switch (lang) {
+    case Lang.ENGLISH:
+      return 'en';
+
+    case Lang.UKRAINIAN:
+      return 'uk';
+
+    case Lang.ROMANIAN:
+      return 'ro';
+
+    case Lang.POLISH:
+      return 'pl';
+
+    default:
+      throw new Error('Unknown language constant: ' + lang);
+  }
+};
+
 /**
  * Identifiers of statuses of a word. Keep the IDs consistent with storage proto.
  *
