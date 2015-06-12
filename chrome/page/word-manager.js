@@ -1,3 +1,13 @@
+var STATUS_TO_CSS_CLASS = {};
+STATUS_TO_CSS_CLASS[WordStatus.NONE] = 'mylingva-unknown-word';
+STATUS_TO_CSS_CLASS[WordStatus.UNKNOWN] = 'mylingva-unknown-word';
+STATUS_TO_CSS_CLASS[WordStatus.KNOWN] = 'mylingva-known-word';
+STATUS_TO_CSS_CLASS[WordStatus.FAMILIAR] = 'mylingva-familiar-word';
+STATUS_TO_CSS_CLASS[WordStatus.IGNORED] = 'mylingva-ignored-word';
+
+var CSS_CLASS_LIST = ['mylingva-known-word', 'mylingva-unknown-word',
+  'mylingva-familiar-word', 'mylingva-ignored-word'];
+
 /**
  * Handles the parsing of the page content as well as saving the words.
  *
@@ -17,6 +27,29 @@ WordManager = function(pageContent, language, readingState) {
  */
 WordManager.prototype.processPageContent = function() {
   this.processDomElement_(this.pageContent_);
+};
+
+/**
+ * Updates status of the given word on the user's page.
+ *
+ * @param {string} wordKeyStr
+ * @param {!WordStatus} wordStatus
+ */
+WordManager.prototype.updateWordStatus = function(wordKeyStr, wordStatus) {
+  console.log('update word statuses', arguments);
+  var elements = document.getElementsByName(wordKeyStr);
+  var targetClass = STATUS_TO_CSS_CLASS[wordStatus];
+  for (var i = 0, length = elements.length; i < length; ++i) {
+    var element = elements.item(i);
+    for (var ci = 0, clength = CSS_CLASS_LIST.length; ci < clength; ++ci) {
+      var cssClass = CSS_CLASS_LIST[ci];
+      if (cssClass != targetClass) {
+        element.classList.remove(cssClass);
+      } else {
+        element.classList.add(cssClass);
+      }
+    }
+  }
 };
 
 /**
@@ -87,34 +120,27 @@ WordManager.prototype.parseSentences_ = function(text) {
 };
 
 /**
- * Returns a unique ID for a given word in our detected language.
- * @param word
- * @returns {String}
- */
-WordManager.prototype.getWordId_ = function(word) {
-	return "w-" + formatText(word) +"-" + this.language_;
-};
-
-/**
  * Parses the text, saves the resulting words and wraps them inside spans in the DOM.
  * @param {string} text
  * @param {Element} domElement
  */
 WordManager.prototype.processWords_ = function(text, domElement) {
   var splitText = text.split(/\s+/);
-  
+
   for (var i = 0; i < splitText.length; i++) {
-    if (splitText[i]) {
-      var wordSpan = document.createElement('span');
-      
-      wordSpan.innerHTML = " " + splitText[i];
-      wordSpan.setAttribute("id", this.getWordId_(formatText(splitText[i].toLowerCase())));
-      domElement.appendChild(wordSpan);	
-      
-      if (formatText(splitText[i].toLowerCase())) {
-	    this.readingState_.addWord(new WordKey(formatText(splitText[i].toLowerCase()), this.language_), wordSpan, null);
+    var word = splitText[i];
+    if (word) {
+      var formattedWord = formatText(word.toLowerCase());
+      if (formattedWord) {
+        var wordKey = new WordKey(formattedWord, this.language_);
+        var wordSpan = document.createElement('span');
+        wordSpan.innerHTML = ' ' + word;
+        wordSpan.setAttribute('name', wordKey.valueOf());
+        domElement.appendChild(wordSpan);
+        this.readingState_.addWord(wordKey, wordSpan, null);
       }
     }
   }
 };
+
 
