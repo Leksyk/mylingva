@@ -4,7 +4,7 @@
  * @param {WordStatus} wordStatus
  */
 function updateSelectedWord(wordKey, wordStatus) {
-	//TODO: implement word status update.
+  //TODO: implement word status update;
 }
 
 /**
@@ -18,7 +18,7 @@ function addMenuOption(menu, option, wordKey) {
 
   var optionItem = document.createElement('p');
   optionItem.innerHTML = textOption[option - 2];
-  closeButton.addEventListener('click', function(e) {
+  optionItem.addEventListener('click', function(e) {
 	  updateSelectedWord(wordKey, option);});
   menu.appendChild(optionItem);
 }
@@ -36,7 +36,8 @@ function createUpdateMenu(wordKey) {
   closeButton.innerHTML = 'x';
   closeButton.style.textAlign = 'right';
   closeButton.style.fontSize = 'x-small';
-  closeButton.addEventListener('click', function(e) { contextMenu.style.visibility = 'hidden';});
+  closeButton.addEventListener('click', function(e) {
+	  contextMenu.style.visibility = 'hidden';});
   contextMenu.appendChild(closeButton);
 
   var menuHeader = document.createElement('p');
@@ -57,7 +58,6 @@ function createUpdateMenu(wordKey) {
 
   return contextMenu;
 }
-
 /**
  * Displays the status updater menu.
  * @param {Event} e
