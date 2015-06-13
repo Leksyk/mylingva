@@ -91,6 +91,7 @@ var CLIENT_SCRIPTS = [
   'page/helpers.js',
   'page/reading-state.js',
   'page/word-manager.js',
+  'page/status-updater.js',
   'page/main.js'
 ];
 

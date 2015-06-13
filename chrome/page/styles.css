@@ -1,3 +1,12 @@
+div.mylingva-status-updater {
+  border:1px solid black;
+  background-color:#EEEEEE;
+  position:absolute;
+  line-height:30px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 span.mylingva-known-word {
   color: black !important;
 }
