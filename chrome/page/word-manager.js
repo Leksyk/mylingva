@@ -73,7 +73,7 @@ WordManager.prototype.processDomElement_ = function(domElement) {
  * @param {Element} domElement
  */
 WordManager.prototype.processText_ = function(text, domElement) {
-  if (!domElement.parentNode) {
+  if (!domElement || !domElement.parentNode) {
     return;
   }
 	
@@ -94,7 +94,7 @@ WordManager.prototype.processText_ = function(text, domElement) {
 	}
     this.processWords_ (sentencesFromText[i], sentanceWrapper);
   }
-  
+
   domElement.parentNode.replaceChild(sentanceWrapper, domElement);
 };
 
@@ -133,14 +133,22 @@ WordManager.prototype.processWords_ = function(text, domElement) {
       var formattedWord = formatText(word.toLowerCase());
       if (formattedWord) {
         var wordKey = new WordKey(formattedWord, this.language_);
-        var wordSpan = document.createElement('span');
-        wordSpan.innerHTML = ' ' + word;
-        wordSpan.setAttribute('name', wordKey.valueOf());
-        domElement.appendChild(wordSpan);
+        
+        (function(wordKey) {
+          wordSpan = document.createElement('span');
+          wordSpan.innerHTML = ' ' + word;
+          wordSpan.setAttribute('name', wordKey.valueOf());
+          wordSpan.addEventListener('click', function(e) {
+        	  showUpdateMenu(e, wordKey); });
+          domElement.appendChild(wordSpan);
+        } (wordKey));
+        
         this.readingState_.addWord(wordKey, wordSpan, null);
+      }
+      else {
+        var textNode = document.createTextNode(' ' + word);  
+        domElement.appendChild(textNode);
       }
     }
   }
 };
-
-
