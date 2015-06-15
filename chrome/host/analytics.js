@@ -6,7 +6,8 @@ function setupGoogleAnalytics() {
     (function(){
       window.ga = function() {
         (window.ga.q = window.ga.q || []).push(arguments);
-      }, window.ga.l = 1 * new Date();
+      };
+      window.ga.l = 1 * new Date();
       var tag = 'script';
       var a = document.createElement(tag);
       var m = document.getElementsByTagName(tag)[0];
@@ -31,7 +32,6 @@ function sendStartEvent(url, lang) {
       eventCategory: 'read',
       eventAction: 'init',
       page: url,
-      eventLabel: '',
-      eventValue: ''
+      eventLabel: ''
   });
 }
