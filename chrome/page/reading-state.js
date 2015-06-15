@@ -9,8 +9,8 @@
 ReadingState = function(failOnDuplicatedDOMElements) {
   /** @private {!Map<!Element, string>} */
   this.words_ = new Map();
-  /** @private {!Map<string, !WordStatus>} */
-  this.wordsStatuses_ = new Map();
+  /** @private {!Map<string, !WordUpdates>} */
+  this.wordsUpdates_ = new Map();
   // TODO: Extend this to maintain/lookup context (within reading-state) of each word.
   this.failOnDuplicatedDOMElements_ = failOnDuplicatedDOMElements
 };
@@ -24,9 +24,6 @@ ReadingState = function(failOnDuplicatedDOMElements) {
  * @param {?WordContext} context
  */
 ReadingState.prototype.addWord = function(wordKey, domElement, context) {
-  if (context) {
-    throw new Error('Adding word context is not supported');
-  }
   if (this.failOnDuplicatedDOMElements_ && this.words_.has(domElement)) {
     var message = 'DOMElement is already registered in ReadingState';
     console.error(message, domElement, wordKey);
@@ -34,9 +31,19 @@ ReadingState.prototype.addWord = function(wordKey, domElement, context) {
   }
   var keyStr = wordKey.valueOf();
   this.words_.set(domElement, keyStr);
-  if (!this.wordsStatuses_.has(keyStr)) {
+  var updates = this.wordsUpdates_.get(keyStr);
+  if (!updates) {
+    updates = new WordUpdates(keyStr);
     // We don't know the status.
-    this.wordsStatuses_.set(keyStr, WordStatus.NONE);
+    updates.status = WordStatus.NONE;
+    this.wordsUpdates_.set(keyStr, updates);
+  }
+  if (context) {
+    updates.new_contexts.push(context);
+    // Defence to not blow up the reading-state.
+    if (updates.new_contexts.length > 10) {
+      updates.new_contexts.shift();
+    }
   }
 };
 
@@ -47,7 +54,12 @@ ReadingState.prototype.addWord = function(wordKey, domElement, context) {
  * @param {!WordStatus} status
  */
 ReadingState.prototype.updateWordStatus = function(wordKey, status) {
-  this.wordsStatuses_.set(wordKey.valueOf(), status);
+  var updates = this.wordsUpdates_.get(wordKey.valueOf());
+  if (!updates) {
+    updates = new WordUpdates(wordKey);
+    this.wordsUpdates_.set(wordKey.valueOf(), updates);
+  }
+  updates.status = status;
 };
 
 /**
@@ -55,8 +67,8 @@ ReadingState.prototype.updateWordStatus = function(wordKey, status) {
  * @param {!WordKey} wordKey
  * @return {!WordStatus}
  */
-ReadingState.prototype.getWordStatus = function(wordKey) {
-  return this.wordStatuses.get(wordKey.valueOf());
+ReadingState.prototype.getWordUpdates = function(wordKey) {
+  return this.wordsUpdates_.get(wordKey.valueOf());
 };
 
 /**
@@ -66,10 +78,9 @@ ReadingState.prototype.getWordStatus = function(wordKey) {
  */
 ReadingState.prototype.getWordsKeyStrs = function() {
   var result = [];
-  for (var word of this.wordsStatuses_.keys()) {
+  for (var word of this.wordsUpdates_.keys()) {
     result.push(word);
   }
-  console.log('getWordsKeyStrs', result);
   return result;
 };
 
@@ -79,11 +90,9 @@ ReadingState.prototype.getWordsKeyStrs = function() {
  * @param {!Object<string, !WordStatus>} wordKeyStrToStatus - word is string repr of WordKey.
  */
 ReadingState.prototype.setWordsStatuses = function(wordKeyStrToStatus) {
-  console.log('setWordsStatuses', wordKeyStrToStatus);
   for (var wordKeyStr of Object.keys(wordKeyStrToStatus)) {
-    this.wordsStatuses_.set(wordKeyStr, wordKeyStrToStatus[wordKeyStr]);
+    this.updateWordStatus(WordKey.parse(wordKeyStr), wordKeyStrToStatus[wordKeyStr]);
   }
-  console.log('after settings statuses', this.wordsStatuses_);
 };
 
 /**

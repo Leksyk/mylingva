@@ -174,3 +174,18 @@ WordContext = function(sentence, quotePos, source) {
   this.quotePos = quotePos;
   this.source = source;
 };
+
+/**
+ * Updates made to the specific word.
+ *
+ * @param {!WordKey} wordKey
+ * @constructor
+ */
+WordUpdates = function(wordKey) {
+  /** @type {!WordKey} */
+  this.wordKey = wordKey;
+  /** @type {?WordStatus} */
+  this.status = null;
+  /** @type {!Array<!WordContext>} */
+  this.new_contexts = [];
+};

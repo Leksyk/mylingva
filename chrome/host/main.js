@@ -78,7 +78,25 @@ function detectLanguage(tabId, callback) {
   });
 }
 
-function saveWords() {
+/**
+ * Persists the given updates to the local-db.
+ *
+ * @param {!Array<!WordUpdates>} words
+ */
+function saveWords(words) {
+  var localDb = new LocalDb();
+  for (var updates of words) {
+    console.log('Persisting update: ', updates);
+    var word = localDb.lookup(updates.wordKey);
+    if (updates.status) {
+      word.status = updates.status;
+      localDb.save(word);
+    }
+    // This is not efficient - this operation should make one update per word.
+    for (var context of updates.new_contexts) {
+      localDb.addContext(updates.wordKey, context);
+    }
+  }
 }
 
 /**
@@ -120,14 +138,18 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
-    switch (msg.method) {
-      case 'save-words':
-        var words = JSON.parse(msg.words);
-        saveWords(words);
-        break;
+    try {
+      switch (msg.method) {
+        case 'save-words':
+          var words = JSON.parse(msg.words);
+          saveWords(words);
+          break;
 
-      default:
-        throw new Error('Unexpected message' + JSON.stringify(msg));
+        default:
+          throw new Error('Unexpected message: ' + JSON.stringify(msg));
+      }
+    } catch (e) {
+      console.error(e);
     }
   });
 });
