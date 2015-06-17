@@ -23,3 +23,10 @@ span.mylingva-familiar-word {
 span.mylingva-ignored-word {
   color: darkslategray !important;
 }
+
+.mylingva-menu {
+  z-index: 10000000000; /* Really want to be on the top. */
+  position: fixed;
+  right: 0;
+  top: 0;
+}

@@ -1,6 +1,7 @@
 var readingState = null;
 var messagePort = null;
 var wordManager = null;
+var pageMenu = null;
 
 function reconnectToExtension(extId) {
   if (messagePort) {
@@ -27,6 +28,8 @@ function init(extId, language) {
   console.log('init', arguments);
   reconnectToExtension(extId);
   readingState = new ReadingState(false);
+  pageMenu = new PageMenuModule(extId);
+  pageMenu.buildUi();
   wordManager = new WordManager(document.documentElement, language, readingState);
   wordManager.processPageContent();
   return readingState.getWordsKeyStrs();
@@ -70,7 +73,7 @@ chrome.runtime.onMessage.addListener(
             break;
 
           default:
-            throw new Error('Unrecognized message: ' + message);
+            console.error('Unrecognized message: ' + JSON.stringify(message));
         }
       } catch (e) {
         console.error(e);
