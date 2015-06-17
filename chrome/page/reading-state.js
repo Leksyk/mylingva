@@ -96,11 +96,15 @@ ReadingState.prototype.setWordsStatuses = function(wordKeyStrToStatus) {
 };
 
 /**
- * Returns all the words_ with the given status sorted alphabetically.
+ * Returns stats of how many words we have per status.
  *
- * @param {!WordStatus} status
- * @return {!Array<Word>}
+ * @return {!Map<!WordStatus, number>}
  */
-ReadingState.prototype.getWordsByStatus = function(status) {
-  throw new Error('Not implemented');
+ReadingState.prototype.getWordStats = function() {
+  var result = new Map();
+  for (var update of this.wordsUpdates_.values()) {
+    var status = update.status != null ? update.status : WordStatus.UNKNOWN;
+    result.set(status, (result.get(status) || 0) + 1);
+  }
+  return result;
 };

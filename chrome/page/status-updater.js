@@ -14,10 +14,8 @@ function updateSelectedWord(wordKey, wordStatus) {
  * @param {WordKey} wordKey
  */
 function addMenuOption(menu, option, wordKey) {
-  var textOption = ['KNOWN', 'FAMILIAR', 'UNKNOWN', 'IGNORED'];
-
   var optionItem = document.createElement('p');
-  optionItem.innerHTML = textOption[option - 2];
+  optionItem.innerHTML = WordStatus.friendlyName(option);
   optionItem.addEventListener('click', function(e) {
 	  updateSelectedWord(wordKey, option);});
   menu.appendChild(optionItem);

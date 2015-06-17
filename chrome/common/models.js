@@ -51,6 +51,32 @@ WordStatus = {
   IGNORED: 5
 };
 
+/**
+ * Returns friendly name for the status code.
+ *
+ * @param {!WordStatus} status
+ * @return {string}
+ */
+WordStatus.friendlyName = function(status) {
+  switch (status) {
+    case WordStatus.FAMILIAR:
+      return 'Familiar';
+
+    case WordStatus.IGNORED:
+      return 'Ignored';
+
+    case WordStatus.KNOWN:
+      return 'Known';
+
+    case WordStatus.NONE:
+    case WordStatus.UNKNOWN:
+      return 'Not seen before';
+
+    default:
+      throw new Error('Unknown WordStatus code: ' + status);
+  }
+};
+
 WordKey = function(word, lang) {
   if (!word || !lang) {
     throw new Error('Both "lang" and "word" must be set.');

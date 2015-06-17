@@ -24,9 +24,22 @@ span.mylingva-ignored-word {
   color: darkslategray !important;
 }
 
+/* Reset css properties that might be set by the host page. */
+.mylingva-menu * {
+  color: initial;
+  background-color: initial;
+  padding: initial;
+  margin: initial;
+  position: initial;
+}
+
 .mylingva-menu {
   z-index: 10000000000; /* Really want to be on the top. */
   position: fixed;
   right: 0;
   top: 0;
+  background-color: white;
+  border: 1px grey solid;
+  padding: 2px;
+  margin: 2px;
 }

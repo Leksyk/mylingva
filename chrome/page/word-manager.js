@@ -37,7 +37,7 @@ WordManager.prototype.processPageContent = function() {
 WordManager.prototype.persistStatusChangeInReadingState =
     function(wordKeyStr, wordStatus) {
 	this.readingState_.setWordsStatuses({wordKeyStr : wordStatus});
-}
+};
 
 /**
  * Updates status of the given word on the user's page.
@@ -46,7 +46,6 @@ WordManager.prototype.persistStatusChangeInReadingState =
  * @param {!WordStatus} wordStatus
  */
 WordManager.prototype.updateWordStatus = function(wordKeyStr, wordStatus) {
-  console.log('update word statuses', arguments);
   var elements = document.getElementsByName(wordKeyStr);
   var targetClass = STATUS_TO_CSS_CLASS[wordStatus];
   for (var i = 0, length = elements.length; i < length; ++i) {

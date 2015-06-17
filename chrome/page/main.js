@@ -45,6 +45,7 @@ function setWordsStatuses(wordToStatus) {
     var status = wordToStatus[wordKeyStr];
     wordManager.updateWordStatus(wordKeyStr, status);
   }
+  pageMenu.updateWordStats(readingState.getWordStats());
 }
 
 /**
@@ -62,6 +63,7 @@ function communicateWordUpdatesToLocalDb(wordKeyStr) {
 
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
+      console.info(message.method, message);
       try {
         switch (message.method) {
           case 'init':
