@@ -30,6 +30,16 @@ WordManager.prototype.processPageContent = function() {
 };
 
 /**
+ * Persists the changed status to the ReadingState.
+ * @param wordKeyStr
+ * @param wordStatus
+ */
+WordManager.prototype.persistStatusChangeInReadingState =
+    function(wordKeyStr, wordStatus) {
+	this.readingState_.setWordsStatuses({wordKeyStr : wordStatus});
+}
+
+/**
  * Updates status of the given word on the user's page.
  *
  * @param {string} wordKeyStr
@@ -73,7 +83,8 @@ WordManager.prototype.processDomElement_ = function(domElement) {
  * @param {Element} domElement
  */
 WordManager.prototype.processText_ = function(text, domElement) {
-  if (!domElement || !domElement.parentNode) {
+  if (!domElement || !domElement.parentNode
+    || domElement.name == 'mylingva-span') {
     return;
   }
 	
@@ -86,6 +97,7 @@ WordManager.prototype.processText_ = function(text, domElement) {
   
   var sentencesFromText = this.parseSentences_(text + ".");
   var sentanceWrapper = document.createElement('span');
+  sentanceWrapper.setAttribute('name', 'mylingva-span');
   
   for (i = 0; i < sentencesFromText.length; i++) {
 	if(i == sentencesFromText.length - 1) {
@@ -133,13 +145,15 @@ WordManager.prototype.processWords_ = function(text, domElement) {
       var formattedWord = formatText(word.toLowerCase());
       if (formattedWord) {
         var wordKey = new WordKey(formattedWord, this.language_);
-        
+
+        var self = this;
         (function(wordKey) {
           wordSpan = document.createElement('span');
           wordSpan.innerHTML = ' ' + word;
           wordSpan.setAttribute('name', wordKey.valueOf());
-          wordSpan.addEventListener('click', function(e) {
-        	  showUpdateMenu(e, wordKey); });
+          wordSpan.addEventListener('mouseover', function(e) {
+        	  var contextPopup = new ContextPopup(self, wordKey);
+        	  contextPopup.showContextPopup(e); });
           domElement.appendChild(wordSpan);
         } (wordKey));
         
