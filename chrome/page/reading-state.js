@@ -91,6 +91,7 @@ ReadingState.prototype.getWordsKeyStrs = function() {
  */
 ReadingState.prototype.setWordsStatuses = function(wordKeyStrToStatus) {
   for (var wordKeyStr of Object.keys(wordKeyStrToStatus)) {
+	  console.log(WordKey.parse(wordKeyStr), wordKeyStrToStatus[wordKeyStr]);
     this.updateWordStatus(WordKey.parse(wordKeyStr), wordKeyStrToStatus[wordKeyStr]);
   }
 };

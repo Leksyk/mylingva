@@ -46,7 +46,7 @@ function setWordsStatuses(wordToStatus) {
 
 /**
  * Given that all the updates are made to the readingState, communicates
- * those update (to the given word) to the localDb (hosted in the extension).
+ * those updates (to the given word) to the localDb (hosted in the extension).
  * TODO: Give this as a callback to the popup UI.
  */
 function communicateWordUpdatesToLocalDb(wordKeyStr) {

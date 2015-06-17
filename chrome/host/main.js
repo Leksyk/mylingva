@@ -87,9 +87,11 @@ function saveWords(words) {
   var localDb = new LocalDb();
   for (var updates of words) {
     console.log('Persisting update: ', updates);
-    var word = localDb.lookup(updates.wordKey);
+    
+    var wordKey = WordKey.parse(updates.wordKey);
+
     if (updates.status) {
-      word.status = updates.status;
+      var word = new Word(wordKey.word, wordKey.lang, updates.status);
       localDb.save(word);
     }
     // This is not efficient - this operation should make one update per word.

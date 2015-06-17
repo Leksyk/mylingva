@@ -36,8 +36,11 @@ WordManager.prototype.processPageContent = function() {
  */
 WordManager.prototype.persistStatusChangeInReadingState =
     function(wordKeyStr, wordStatus) {
-	this.readingState_.setWordsStatuses({wordKeyStr : wordStatus});
-}
+  var parameter = {};
+  parameter[wordKeyStr] = wordStatus;
+  
+  this.readingState_.setWordsStatuses(parameter);
+};
 
 /**
  * Updates status of the given word on the user's page.

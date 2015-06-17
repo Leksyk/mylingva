@@ -64,12 +64,8 @@ ContextPopup.prototype.addMenuOption_ = function(menu, wordStatus) {
  * @returns {Element}
  */
 ContextPopup.prototype.createUpdateMenu_ = function() {
-  var element = document.getElementById('mylingva-context-popup');
-
-  if (element) {
-    element.parentElement.removeChild(element);
-  }
-
+  this.hideContextPopup();
+	
   var contextMenu = document.createElement('div');
 
   var menuHeader = document.createElement('p');
@@ -98,4 +94,15 @@ ContextPopup.prototype.showContextPopup = function(e) {
 
   contextPopup.style.left = pageXOffset + e.clientX + 'px';
   contextPopup.style.top = pageYOffset + e.clientY + 'px';
+};
+
+/**
+ * Hides the context popup.
+ */
+ContextPopup.prototype.hideContextPopup = function() {
+  var element = document.getElementById('mylingva-context-popup');
+
+  if (element) {
+    element.parentElement.removeChild(element);
+  }
 };

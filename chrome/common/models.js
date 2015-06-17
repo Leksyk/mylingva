@@ -94,7 +94,7 @@ WordKey.parse = function(value) {
  */
 Word = function(word, lang, status, opt_numTimesSeen, opt_numTimesUsed) {
   if (!word || !lang || !status) {
-    throw new Error('Both "lang" and "word" must be set.');
+    throw new Error('Both "lang" and "word" and "status" must be set.');
   }
   this.word = word;
   this.lang = lang;
