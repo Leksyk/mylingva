@@ -112,6 +112,9 @@ var CLIENT_SCRIPTS = [
   'page/reading-state.js',
   'page/word-manager.js',
   'page/context-popup.js',
+  'libs/angular.js',
+  'libs/jquery.js',
+  'page/menu.js',
   'page/main.js'
 ];
 

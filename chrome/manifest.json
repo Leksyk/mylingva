@@ -8,12 +8,17 @@
   "background": {
     "persistent": false,
     "scripts": [
+      "libs/jquery.js",
       "common/models.js",
       "host/analytics.js",
       "host/localdb.js",
       "host/main.js"
     ]
   },
+
+  "web_accessible_resources": [
+    "page/menu.html"
+  ],
 
   "browser_action": {
     "default_icon": "icon.png"

@@ -1,6 +1,7 @@
 var readingState = null;
 var messagePort = null;
 var wordManager = null;
+var pageMenu = null;
 
 function reconnectToExtension(extId) {
   if (messagePort) {
@@ -27,6 +28,8 @@ function init(extId, language) {
   console.log('init', arguments);
   reconnectToExtension(extId);
   readingState = new ReadingState(false);
+  pageMenu = new PageMenuModule(extId);
+  pageMenu.buildUi();
   wordManager = new WordManager(document.documentElement, language, readingState);
   wordManager.processPageContent();
   return readingState.getWordsKeyStrs();
@@ -42,6 +45,7 @@ function setWordsStatuses(wordToStatus) {
     var status = wordToStatus[wordKeyStr];
     wordManager.updateWordStatus(wordKeyStr, status);
   }
+  pageMenu.updateWordStats(readingState.getWordStats());
 }
 
 /**
@@ -59,6 +63,7 @@ function communicateWordUpdatesToLocalDb(wordKeyStr) {
 
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
+      console.info(message.method, message);
       try {
         switch (message.method) {
           case 'init':
@@ -70,7 +75,7 @@ chrome.runtime.onMessage.addListener(
             break;
 
           default:
-            throw new Error('Unrecognized message: ' + message);
+            console.error('Unrecognized message: ' + JSON.stringify(message));
         }
       } catch (e) {
         console.error(e);

@@ -49,7 +49,6 @@ WordManager.prototype.persistStatusChangeInReadingState =
  * @param {!WordStatus} wordStatus
  */
 WordManager.prototype.updateWordStatus = function(wordKeyStr, wordStatus) {
-  console.log('update word statuses', arguments);
   var elements = document.getElementsByName(wordKeyStr);
   var targetClass = STATUS_TO_CSS_CLASS[wordStatus];
   for (var i = 0, length = elements.length; i < length; ++i) {

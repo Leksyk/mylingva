@@ -14,10 +14,9 @@ function isDomElementVisible(element) {
 
   for(i = 0; i < hiddenTags.length; ++i) {
     if (hiddenTags[i] == element.tagName) {
-	  return false;
-	}
+	    return false;
+	  }
   }
-
   return true;
 }
 
