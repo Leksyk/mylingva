@@ -31,8 +31,8 @@ WordManager.prototype.processPageContent = function() {
 
 /**
  * Persists the changed status to the ReadingState.
- * @param wordKeyStr
- * @param wordStatus
+ * @param {string} wordKeyStr
+ * @param {!WordStatus} wordStatus
  */
 WordManager.prototype.persistStatusChangeInReadingState =
     function(wordKeyStr, wordStatus) {
