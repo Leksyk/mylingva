@@ -86,7 +86,8 @@ WordManager.prototype.processDomElement_ = function(domElement) {
  */
 WordManager.prototype.processText_ = function(text, domElement) {
   if (!domElement || !domElement.parentNode
-    || domElement.name == 'mylingva-span') {
+    // This check will ignore both span wrappers for words/sentences and our own UI.
+    || (domElement.className && domElement.className.indexOf('mylingva') >= 0)) {
     return;
   }
 	
@@ -98,18 +99,18 @@ WordManager.prototype.processText_ = function(text, domElement) {
   }
   
   var sentencesFromText = this.parseSentences_(text + ".");
-  var sentanceWrapper = document.createElement('span');
-  sentanceWrapper.setAttribute('name', 'mylingva-span');
+  var sentenceWrapper = document.createElement('span');
+  sentenceWrapper.classList.add('mylingva-span');
   
-  for (i = 0; i < sentencesFromText.length; i++) {
+  for (var i = 0; i < sentencesFromText.length; i++) {
 	if(i == sentencesFromText.length - 1) {
 		sentencesFromText[i] = sentencesFromText[i].substring(
 		    0, sentencesFromText[i].length - 1) + lastCharacter;
 	}
-    this.processWords_ (sentencesFromText[i], sentanceWrapper);
+    this.processWords_ (sentencesFromText[i], sentenceWrapper);
   }
 
-  domElement.parentNode.replaceChild(sentanceWrapper, domElement);
+  domElement.parentNode.replaceChild(sentenceWrapper, domElement);
 };
 
 /**

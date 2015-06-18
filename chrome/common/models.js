@@ -130,7 +130,9 @@ Word = function(word, lang, status, opt_numTimesSeen, opt_numTimesUsed) {
   // TODO: How about 'part of speech'?
 };
 
-Word.prototype.valueOf = WordKey.prototype.valueOf;
+Word.prototype.getKey = function() {
+  return new WordKey(this.word, this.lang);
+};
 
 /**
  * How one word is related to the other.

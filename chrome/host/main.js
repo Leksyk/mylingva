@@ -1,4 +1,10 @@
 
+/**
+ * The connected client ports.
+ * @type {!Object<number, !chrome.tabs.Tab>}
+ */
+var clientTabs = {};
+
 function injectScripts(tabId, scripts, callback) {
   // Recursively pass itself to the callback to executeScript until all the scripts are loaded.
   var script = scripts[0];
@@ -35,6 +41,37 @@ function communicateWordsStatuses(tabId, wordKeyStrs) {
   chrome.tabs.sendMessage(tabId, {
     method: 'set-words-statuses',
     wordToStatus: result
+  });
+}
+
+/**
+ * Sends the given message to all the connected clients.
+ *
+ * @param {!Object} message
+ */
+function communicateToAllClients(message) {
+  for (var tabId of Object.keys(clientTabs)) {
+    chrome.tabs.sendMessage(parseInt(tabId), message);
+  }
+}
+
+/**
+ * Notifies all the connected clients that the given words got changed.
+ *
+ * @param wordKeys
+ */
+function communicateWordUpdates(wordKeys) {
+  if (wordKeys.length == 0) {
+    return;
+  }
+  var localDb = new LocalDb();
+  var words = [];
+  for (var wk of wordKeys) {
+    words.push(localDb.lookup(wk));
+  }
+  communicateToAllClients({
+    method: 'update-words',
+    words: words
   });
 }
 
@@ -85,6 +122,7 @@ function detectLanguage(tabId, callback) {
  */
 function saveWords(words) {
   var localDb = new LocalDb();
+  var updatedWordKeys = [];
   for (var updates of words) {
     console.log('Persisting update: ', updates);
     
@@ -98,7 +136,10 @@ function saveWords(words) {
     for (var context of updates.new_contexts) {
       localDb.addContext(updates.wordKey, context);
     }
+
+    updatedWordKeys.push(wordKey);
   }
+  communicateWordUpdates(words);
 }
 
 /**
@@ -143,7 +184,16 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 });
 
 chrome.runtime.onConnect.addListener(function(port) {
-  port.onMessage.addListener(function(msg) {
+  var tab = port.sender.tab;
+  console.info('Connected client port', tab.id, tab.url, tab);
+  port.onDisconnect.addListener(function(port) {
+    var tab = port.sender.tab;
+    console.info('Disconnected client port', tab.id, tab.url, tab);
+    delete clientTabs[tab.id];
+  });
+  clientTabs[tab.id] = tab;
+  port.onMessage.addListener(function(tab, msg) {
+    console.info('Received message', msg.method, 'from', tab.id, tab.url, tab);
     try {
       switch (msg.method) {
         case 'save-words':
@@ -152,10 +202,10 @@ chrome.runtime.onConnect.addListener(function(port) {
           break;
 
         default:
-          throw new Error('Unexpected message: ' + JSON.stringify(msg));
+          console.error('Unexpected message: ' + JSON.stringify(msg));
       }
     } catch (e) {
       console.error(e);
     }
-  });
+  }.bind(null, tab));
 });

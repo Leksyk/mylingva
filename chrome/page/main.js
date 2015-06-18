@@ -49,6 +49,23 @@ function setWordsStatuses(wordToStatus) {
 }
 
 /**
+ * Updates the given words on the page, reading state and menus.
+ *
+ * @param {!Array<!Word>} words
+ */
+function updateWords(words) {
+  var wordToStatus = {};
+  for (var word of words) {
+    wordManager.updateWordStatus(word.status);
+    // The deserialized word doesn't have the right prototype set so need to call this way.
+    var wordKey = Word.prototype.getKey.call(word);
+    wordToStatus[wordKey.valueOf()] = word.status;
+  }
+  readingState.setWordsStatuses(wordToStatus);
+  pageMenu.updateWordStats(readingState.getWordStats());
+}
+
+/**
  * Given that all the updates are made to the readingState, communicates
  * those updates (to the given word) to the localDb (hosted in the extension).
  * TODO: Give this as a callback to the popup UI.
@@ -72,6 +89,10 @@ chrome.runtime.onMessage.addListener(
 
           case 'set-words-statuses':
             setWordsStatuses(message.wordToStatus);
+            break;
+
+          case 'update-words':
+            updateWords(message.words);
             break;
 
           default:
