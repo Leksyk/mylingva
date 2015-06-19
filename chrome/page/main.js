@@ -31,6 +31,7 @@ function init(extId, language) {
   pageMenu = new PageMenuModule(extId);
   pageMenu.buildUi();
   wordManager = new WordManager(document.documentElement, language, readingState);
+  // TODO: Convert this to async operation and call the extension back once done.
   wordManager.processPageContent();
   return readingState.getWordsKeyStrs();
 }

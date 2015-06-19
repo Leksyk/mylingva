@@ -80,7 +80,7 @@ LocalDb.prototype.addContext = function(wordKey, context) {
  * @private
  */
 LocalDb.prototype.getWordStorageKey_ = function(word) {
-  return 'w-' + word.valueOf();
+  return 'w-' + WordKey.prototype.valueOf.call(word);
 };
 
 /**
