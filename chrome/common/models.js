@@ -10,32 +10,26 @@ Lang = {
   POLISH: 4
 };
 
+Lang.list = [
+  {id: Lang.ENGLISH, code: 'en', name: 'English'},
+  {id: Lang.UKRAINIAN, code: 'uk', name: 'Українська'},
+  {id: Lang.ROMANIAN, code: 'ro', name: 'Român'},
+  {id: Lang.POLISH, code: 'pl', name: 'Polski'}
+];
+
+/** @type {!Object<string, !Object>} */
+Lang.byId = {};
+Lang.list.forEach(function(lang) { this[lang.id] = lang; }, Lang.byId);
+
+Lang.byCode = {};
+Lang.list.forEach(function(lang) { this[lang.code] = lang}, Lang.byCode);
+
 Lang.parse = function(langCode) {
-  return {
-    'en': Lang.ENGLISH,
-    'uk': Lang.UKRAINIAN,
-    'ro': Lang.ROMANIAN,
-    'pl': Lang.POLISH
-  }[langCode];
+  return Lang.byCode[langCode].id;
 };
 
 Lang.toCode = function(lang) {
-  switch (lang) {
-    case Lang.ENGLISH:
-      return 'en';
-
-    case Lang.UKRAINIAN:
-      return 'uk';
-
-    case Lang.ROMANIAN:
-      return 'ro';
-
-    case Lang.POLISH:
-      return 'pl';
-
-    default:
-      throw new Error('Unknown language constant: ' + lang);
-  }
+  return Lang.byId[lang].code;
 };
 
 /**
@@ -51,6 +45,16 @@ WordStatus = {
   IGNORED: 5
 };
 
+WordStatus.list = [
+  {id: WordStatus.NONE, name: 'Not seen before'},
+  {id: WordStatus.KNOWN, name: 'Known'},
+  {id: WordStatus.FAMILIAR, name: 'Familiar'},
+  {id: WordStatus.UNKNOWN, name: 'Unknown'},
+  {id: WordStatus.IGNORED, name: 'Ignored'}
+];
+WordStatus.byId = {};
+WordStatus.list.forEach(function(s) { this[s.id] = s; }, WordStatus.byId);
+
 /**
  * Returns friendly name for the status code.
  *
@@ -58,23 +62,7 @@ WordStatus = {
  * @return {string}
  */
 WordStatus.friendlyName = function(status) {
-  switch (status) {
-    case WordStatus.FAMILIAR:
-      return 'Familiar';
-
-    case WordStatus.IGNORED:
-      return 'Ignored';
-
-    case WordStatus.KNOWN:
-      return 'Known';
-
-    case WordStatus.NONE:
-    case WordStatus.UNKNOWN:
-      return 'Not seen before';
-
-    default:
-      throw new Error('Unknown WordStatus code: ' + status);
-  }
+  return WordStatus.byId[status].name;
 };
 
 WordKey = function(word, lang) {

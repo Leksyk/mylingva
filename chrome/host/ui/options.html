@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>My Lingva settings</title>
+    <link rel="stylesheet" type="text/css" href="/host/ui/options.css">
+    <script src="/libs/angular.js"></script>
+    <script src="/common/models.js"></script>
+    <script src="/host/localdb.js"></script>
+    <script src="/host/ui/options.js"></script>
+</head>
+<body ng-app="mylingva-options" ng-controller="SettingsCnt">
+<h2>MyLingva dictionary</h2>
+<div class="bar">
+  <label for="lang">By language:</label>
+  <select id="lang" ng-model="langs.selected"
+          ng-options="lang.id as lang.name for lang in langs.used">
+    <option value="">&lt;All&gt;</option>
+  </select>
+
+  <label>Search:</label>
+  <input type="text" ng-model="words.filter.$">
+</div>
+<table class="words">
+  <thead>
+    <tr>
+      <th>Lang</th>
+      <th>Word</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="word in words.list | filter:words.filter" class="word-row">
+      <td class="cell">{{langs.toName(word.lang)}}</td>
+      <td class="cell">{{word.word}}</td>
+      <td class="cell">{{statusToName(word.status)}}</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

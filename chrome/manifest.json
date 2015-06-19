@@ -20,6 +20,12 @@
     "page/menu.html"
   ],
 
+  "options_page": "host/ui/options.html",
+  "options_ui": {
+    "page": "host/ui/options.html",
+    "chrome_style": true
+  },
+
   "browser_action": {
     "default_icon": "icon.png"
   },

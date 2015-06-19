@@ -75,6 +75,24 @@ LocalDb.prototype.addContext = function(wordKey, context) {
 };
 
 /**
+ * Returns all the word keys saved to local-db.
+ *
+ * @return {!Array<!Word>}
+ */
+LocalDb.prototype.listWords = function() {
+  var result = [];
+  for (var i = 0, l = this.storage_.length; i < l; ++i) {
+    var keyStr = this.storage_.key(i);
+    if (keyStr.indexOf('w-') == 0) {
+      keyStr = keyStr.substr(2);
+      var key = WordKey.parse(keyStr);
+      result.push(this.lookup(key));
+    }
+  }
+  return result;
+};
+
+/**
  * @param {!Word|!WordKey} word
  * @return {string}
  * @private
