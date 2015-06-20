@@ -10,8 +10,8 @@
     <script src="/host/ui/options.js"></script>
 </head>
 <body ng-app="mylingva-options" ng-controller="SettingsCnt">
-<h2>MyLingva dictionary</h2>
 <div class="bar">
+  <h2>MyLingva dictionary</h2>
   <label for="lang">By language:</label>
   <select id="lang" ng-model="langs.selected"
           ng-options="lang.id as lang.name for lang in langs.used">
@@ -19,20 +19,23 @@
   </select>
 
   <label>Search:</label>
-  <input type="text" ng-model="words.filter.$">
+  <input type="text" ng-model="words.filter.$"
+         ng-model-options="{ updateOn: 'default blur', debounce: { default: 300, blur: 0 } }">
 </div>
 <table class="words">
   <thead>
     <tr>
-      <th>Lang</th>
-      <th>Word</th>
+      <th class="header col-lang">Lang</th>
+      <th class="header col-word">Word</th>
+      <th class="header col-status">Familiarity</th>
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="word in words.list | filter:words.filter" class="word-row">
-      <td class="cell">{{langs.toName(word.lang)}}</td>
-      <td class="cell">{{word.word}}</td>
-      <td class="cell">{{statusToName(word.status)}}</td>
+    <tr ng-repeat="word in words.list | filter:words.filter" class="word-row"
+        ng-class="{'even': $even}">
+      <td class="cell" col-lang>{{langs.toName(word.lang)}}</td>
+      <td class="cell col-word">{{word.word}}</td>
+      <td class="cell col-status">{{statusToName(word.status)}}</td>
     </tr>
   </tbody>
 </table>

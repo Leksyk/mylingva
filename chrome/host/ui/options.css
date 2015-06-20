@@ -1,3 +1,54 @@
-.word-row td.cell {
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.bar {
+  height: 6em;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.bar,
+.words thead {
+  position: fixed;
+  background-color: lightyellow;
+  z-index: 1;
+  width: 100%;
+}
+
+.words thead {
+  top: 6em;
+  margin-top: 0;
+}
+
+.words {
+  position: relative;
+  top: 8em;
+}
+
+.word-row td.cell,
+.words .header,
+.bar {
   padding: .2em 1em;
+}
+
+.words .even {
+  background-color: #d9f2ff;
+}
+
+.words .header {
+  text-align: left;
+}
+
+.col-lang {
+  width: 5em;
+}
+
+.col-word {
+  width: 12em;
+}
+
+.col-status {
+  width: 5em;
 }
