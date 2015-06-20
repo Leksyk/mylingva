@@ -67,7 +67,7 @@ function communicateWordUpdates(wordKeys) {
   var localDb = new LocalDb();
   var words = [];
   for (var wk of wordKeys) {
-    words.push(localDb.lookup(wk.wordKey));
+    words.push(localDb.lookup(WordKey.parse(wk.wordKey)));
   }
   communicateToAllClients({
     method: 'update-words',
