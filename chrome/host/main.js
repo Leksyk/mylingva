@@ -58,7 +58,7 @@ function communicateToAllClients(message) {
 /**
  * Notifies all the connected clients that the given words got changed.
  *
- * @param wordKeys
+ * @param {!Array<!WordUpdates>} wordKeys
  */
 function communicateWordUpdates(wordKeys) {
   if (wordKeys.length == 0) {
@@ -67,7 +67,7 @@ function communicateWordUpdates(wordKeys) {
   var localDb = new LocalDb();
   var words = [];
   for (var wk of wordKeys) {
-    words.push(localDb.lookup(wk));
+    words.push(localDb.lookup(wk.wordKey));
   }
   communicateToAllClients({
     method: 'update-words',
