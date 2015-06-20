@@ -70,7 +70,7 @@ WordManager.prototype.updateWordStatus = function(wordKeyStr, wordStatus) {
  */
 WordManager.prototype.processDomElement_ = function(domElement) {
   if (domElement.nodeType == 3 && isDomElementVisible(domElement.parentNode)) {
-    this.processText_(domElement.textContent, domElement);	  
+    this.processText_(domElement);
   }
 	
   var childNodeNumber = domElement.childNodes.length;
@@ -81,16 +81,18 @@ WordManager.prototype.processDomElement_ = function(domElement) {
 
 /**
  * Parses the text into sentences and calls the word processing function.
- * @param {string} text
  * @param {Element} domElement
  */
-WordManager.prototype.processText_ = function(text, domElement) {
+WordManager.prototype.processText_ = function(domElement) {
   if (!domElement || !domElement.parentNode
     // This check will ignore both span wrappers for words/sentences and our own UI.
     || (domElement.className && domElement.className.indexOf('mylingva') >= 0)) {
     return;
   }
-	
+  var text = domElement.textContent;
+  if (!text) {
+    return;
+  }
   var lastCharacter = text.substr(text.length - 1);
   
   if (lastCharacter != "!" && lastCharacter != "?" 
@@ -103,10 +105,10 @@ WordManager.prototype.processText_ = function(text, domElement) {
   sentenceWrapper.classList.add('mylingva-span');
   
   for (var i = 0; i < sentencesFromText.length; i++) {
-	if(i == sentencesFromText.length - 1) {
-		sentencesFromText[i] = sentencesFromText[i].substring(
-		    0, sentencesFromText[i].length - 1) + lastCharacter;
-	}
+	  if(i == sentencesFromText.length - 1) {
+      sentencesFromText[i] = sentencesFromText[i].substring(
+          0, sentencesFromText[i].length - 1) + lastCharacter;
+    }
     this.processWords_ (sentencesFromText[i], sentenceWrapper);
   }
 
@@ -130,7 +132,12 @@ WordManager.prototype.parseSentences_ = function(text) {
       sentences.push(splitText[i]);
     }
   }
-
+  function formatText(text) {
+    return text
+        .replace(/(^[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s\d]+)/g, '')
+        .replace(/([\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s\d]+$)/g, '')
+        .trim();
+  }
   return sentences;
 };
 
@@ -140,7 +147,7 @@ WordManager.prototype.parseSentences_ = function(text) {
  * @param {Element} domElement
  */
 WordManager.prototype.processWords_ = function(text, domElement) {
-  var splitText = text.split(/\s+/);
+  var splitText = text.split(/[\s\b\\\/]+/);
 
   for (var i = 0; i < splitText.length; i++) {
     var word = splitText[i];
@@ -148,17 +155,17 @@ WordManager.prototype.processWords_ = function(text, domElement) {
       var formattedWord = formatText(word.toLowerCase());
       if (formattedWord) {
         var wordKey = new WordKey(formattedWord, this.language_);
-
-        var self = this;
-        (function(wordKey) {
-          wordSpan = document.createElement('span');
+        var wordSpan = (function(word, wordKey) {
+          var wordSpan = document.createElement('span');
           wordSpan.innerHTML = ' ' + word;
           wordSpan.setAttribute('name', wordKey.valueOf());
           wordSpan.addEventListener('mouseover', function(e) {
-        	  var contextPopup = new ContextPopup(self, wordKey);
-        	  contextPopup.showContextPopup(e); });
+        	  var contextPopup = new ContextPopup(this, wordKey);
+        	  contextPopup.showContextPopup(e);
+          }.bind(this));
           domElement.appendChild(wordSpan);
-        } (wordKey));
+          return wordSpan;
+        }.bind(this)(word, wordKey));
         
         this.readingState_.addWord(wordKey, wordSpan, null);
       }

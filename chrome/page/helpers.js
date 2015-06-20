@@ -22,12 +22,13 @@ function isDomElementVisible(element) {
 
 /**
  * Returns the formatted text: no special characters at the ends of the string, no extra spaces.
- * @param sentence
+ * @param {string} text
  * @returns {string}
  */
 function formatText(text) {
+  // Tries to remove all non-alphanumeric characters and digits.
   return text
-	  .replace(/(^[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s]+)/g, "")
-	  .replace(/([\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s]+$)/g, "")
+	  .replace(/(^[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s\d]+)/g, '')
+	  .replace(/([\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\s\d]+$)/g, '')
 	  .trim();
 }

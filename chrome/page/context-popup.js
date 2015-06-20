@@ -1,8 +1,8 @@
 /**
  * ContextPopup displayed to the user when hovering over words.
- * @param wordManager
- * @param wordKey
- * @returns {ContextPopup}
+ * @param {!WordManager} wordManager
+ * @param {!WordKey} wordKey
+ * @constructor
  */
 ContextPopup = function(wordManager, wordKey) {
   this.wordManager_ = wordManager;

@@ -166,7 +166,7 @@ QuotePos = function(startIndex, endIndex) {
 /**
  * Describes the source of a word or a quote.
  *
- * @param url
+ * @param {string} url
  * @constructor
  */
 Source = function(url) {
