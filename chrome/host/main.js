@@ -67,7 +67,7 @@ function communicateWordUpdates(wordKeys) {
   var localDb = new LocalDb();
   var words = [];
   for (var wk of wordKeys) {
-    words.push(localDb.lookup(WordKey.parse(wk.wordKey)));
+    words.push(localDb.lookup(wk.wordKey));
   }
   communicateToAllClients({
     method: 'update-words',
@@ -78,15 +78,16 @@ function communicateWordUpdates(wordKeys) {
 /**
  * Initializes the extension code on the target page side.
  *
- * @param {number} tabId
+ * @param {!chrome.tabs.Tab} tab
  * @param {!Lang} language
  */
-function initClientScript(tabId, language) {
-  chrome.tabs.sendMessage(tabId, {
+function initClientScript(tab, language) {
+  chrome.tabs.sendMessage(tab.id, {
     method: 'init',
     extId: chrome.runtime.id,
-    language: language
-  }, communicateWordsStatuses.bind(null, tabId));
+    language: language,
+    incognitoMode: tab.incognito
+  }, communicateWordsStatuses.bind(null, tab.id));
 }
 
 /**
@@ -125,19 +126,11 @@ function saveWords(words) {
   var updatedWordKeys = [];
   for (var updates of words) {
     console.log('Persisting update: ', updates);
-    
-    var wordKey = WordKey.parse(updates.wordKey);
-
     if (updates.status) {
-      var word = new Word(wordKey.word, wordKey.lang, updates.status);
-      localDb.save(word);
+      var word = new Word(updates.wordKey.word, updates.wordKey.lang, updates.status);
+      localDb.save(word, updates.new_contexts);
     }
-    // This is not efficient - this operation should make one update per word.
-    for (var context of updates.new_contexts) {
-      localDb.addContext(updates.wordKey, context);
-    }
-
-    updatedWordKeys.push(wordKey);
+    updatedWordKeys.push(updates.wordKey);
   }
   communicateWordUpdates(words);
 }
@@ -170,12 +163,12 @@ chrome.browserAction.onClicked.addListener(function(tab) {
       origins: [domain]
     }, function(granted) {
       if (granted) {
-        function injectCssAndInit(tabId, language) {
+        function injectCssAndInit(tab, language) {
           // Do not wait for inject css since it's OK to have it finished after statuses arrive.
-          injectCss(tabId, 'page/styles.css', null);
-          initClientScript(tabId, language);
+          injectCss(tab.id, 'page/styles.css', null);
+          initClientScript(tab, language);
         }
-        injectScripts(tab.id, CLIENT_SCRIPTS, injectCssAndInit.bind(null, tab.id, language));
+        injectScripts(tab.id, CLIENT_SCRIPTS, injectCssAndInit.bind(null, tab, language));
       } else {
         throw Error('Permissions rejected');
       }

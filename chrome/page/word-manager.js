@@ -14,12 +14,16 @@ var CSS_CLASS_LIST = ['mylingva-known-word', 'mylingva-unknown-word',
  * @param {!Element} pageContent
  * @param {!Lang} language
  * @param {!ReadingState} readingState
+ * @param {boolean} incognitoMode
+ * @param {?string} url
  * @constructor
  */
-WordManager = function(pageContent, language, readingState) {
+WordManager = function(pageContent, language, readingState, incognitoMode, url) {
   this.pageContent_ = pageContent;
   this.language_ = language;
   this.readingState_ = readingState;
+  this.incognitoMode_ = incognitoMode;
+  this.url_ = url;
 };
 
 /**
@@ -149,7 +153,7 @@ WordManager.prototype.parseSentences_ = function(text) {
 WordManager.prototype.processWords_ = function(text, domElement) {
   var splitText = text.split(/[\s\b\\\/]+/);
 
-  for (var i = 0; i < splitText.length; i++) {
+  for (var i = 0, l = splitText.length; i < l; i++) {
     var word = splitText[i];
     if (word) {
       var formattedWord = formatText(word.toLowerCase());
@@ -166,8 +170,10 @@ WordManager.prototype.processWords_ = function(text, domElement) {
           domElement.appendChild(wordSpan);
           return wordSpan;
         }.bind(this)(word, wordKey));
-        
-        this.readingState_.addWord(wordKey, wordSpan, null);
+        var context = this.incognitoMode_ ? null :
+          // TODO: Save word position within the quote (will likely need a refactoring of this).
+            new WordContext(text, null, new Source(this.url_));
+        this.readingState_.addWord(wordKey, wordSpan, context);
       }
       else {
         var textNode = document.createTextNode(' ' + word);  

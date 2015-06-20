@@ -33,7 +33,7 @@ ReadingState.prototype.addWord = function(wordKey, domElement, context) {
   this.words_.set(domElement, keyStr);
   var updates = this.wordsUpdates_.get(keyStr);
   if (!updates) {
-    updates = new WordUpdates(keyStr);
+    updates = new WordUpdates(wordKey);
     // We don't know the status.
     updates.status = WordStatus.NONE;
     this.wordsUpdates_.set(keyStr, updates);
@@ -41,7 +41,7 @@ ReadingState.prototype.addWord = function(wordKey, domElement, context) {
   if (context) {
     updates.new_contexts.push(context);
     // Defence to not blow up the reading-state.
-    if (updates.new_contexts.length > 10) {
+    if (updates.new_contexts.length > Consts.MAX_CONTEXTS_PER_WORD) {
       updates.new_contexts.shift();
     }
   }

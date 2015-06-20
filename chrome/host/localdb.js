@@ -44,13 +44,28 @@ LocalDb.prototype.lookupContexts = function(wordKey, opt_limit) {
 /**
  * Persists the given word.
  * @param {!Word} word
+ * @param {?Array<string>} new_contexts
  */
-LocalDb.prototype.save = function(word) {
+LocalDb.prototype.save = function(word, new_contexts) {
   var value = this.fetchStorageObject_(word);
   if (value) {
     value.word = word;
+    if (new_contexts && new_contexts.length > 0) {
+      value.contexts = value.contexts || [];
+      for (var ctx of new_contexts) {
+        var predicate = WordContext.prototype.equals.bind(ctx);
+        // If not yet there add it to the contexts.
+        if ($.grep(value.contexts, predicate).length == 0) {
+          value.contexts.push(ctx);
+        }
+      }
+    }
   } else {
-    value = this.createWordStorageObject_(word);
+    value = this.createWordStorageObject_(word, new_contexts);
+  }
+  if (value.contexts && value.contexts.length > Consts.MAX_CONTEXTS_PER_WORD) {
+    // Take the top N most freshest contexts.
+    value.contexts = value.contexts.slice(value.contexts.length - Consts.MAX_CONTEXTS_PER_WORD);
   }
   this.saveStorageObject_(word, value);
 };
@@ -62,15 +77,6 @@ LocalDb.prototype.save = function(word) {
  * @param {!WordRelation} relation
  */
 LocalDb.prototype.addRelation = function(wordKey, relation) {
-  throw new Error('Not implemented');
-};
-
-/**
- *
- * @param {!WordKey} wordKey
- * @param {!WordContext} context
- */
-LocalDb.prototype.addContext = function(wordKey, context) {
   throw new Error('Not implemented');
 };
 

@@ -26,17 +26,19 @@ function reconnectToExtension() {
  * Returns list of all the words used in the page.
  *
  * @param {string} extId
+ * @param {boolean} saveContexts
  * @param {!Lang} language
  * @return {!Array<string>} string representation of WordKey(s).
  */
-function init(extId, language) {
+function init(extId, incognitoMode, language) {
   console.log('init', arguments);
   extensionId = extId;
   reconnectToExtension(extId);
   readingState = new ReadingState(false);
   pageMenu = new PageMenuModule(extId);
   pageMenu.buildUi();
-  wordManager = new WordManager(document.documentElement, language, readingState);
+  wordManager = new WordManager(document.documentElement, language, readingState,
+      incognitoMode, window.location.toString());
   // TODO: Convert this to async operation and call the extension back once done.
   wordManager.processPageContent();
   return readingState.getWordsKeyStrs();
@@ -63,7 +65,7 @@ function setWordsStatuses(wordToStatus) {
 function updateWords(words) {
   var wordToStatus = {};
   for (var word of words) {
-    wordManager.updateWordStatus(word.status);
+    wordManager.updateWordStatus(Word.prototype.getKey.call(word).valueOf(), word.status);
     // The deserialized word doesn't have the right prototype set so need to call this way.
     var wordKey = Word.prototype.getKey.call(word);
     wordToStatus[wordKey.valueOf()] = word.status;
@@ -104,7 +106,7 @@ chrome.runtime.onMessage.addListener(
       try {
         switch (message.method) {
           case 'init':
-            sendResponse(init(message.extId, message.language));
+            sendResponse(init(message.extId, message.incognitoMode, message.language));
             break;
 
           case 'set-words-statuses':

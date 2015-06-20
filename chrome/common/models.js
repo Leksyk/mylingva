@@ -1,3 +1,9 @@
+/** @const */
+Consts = {
+  MAX_CONTEXTS_PER_WORD: 10
+};
+
+
 /**
  * Identifiers for supported languages. Keep the IDs consistent with storage proto.
  *
@@ -10,6 +16,7 @@ Lang = {
   POLISH: 4
 };
 
+/** @const */
 Lang.list = [
   {id: Lang.ENGLISH, code: 'en', name: 'English'},
   {id: Lang.UKRAINIAN, code: 'uk', name: 'Українська'},
@@ -45,6 +52,7 @@ WordStatus = {
   IGNORED: 5
 };
 
+/** @const */
 WordStatus.list = [
   {id: WordStatus.NONE, name: 'Not seen before'},
   {id: WordStatus.KNOWN, name: 'Known'},
@@ -189,6 +197,16 @@ WordContext = function(sentence, quotePos, source) {
   this.sentence = sentence;
   this.quotePos = quotePos;
   this.source = source;
+};
+
+/**
+ * Compares this instance of word context with another one for equality.
+ *
+ * @param {!WordContext} other
+ * @return {boolean}
+ */
+WordContext.prototype.equals = function(other) {
+  return other && this.sentence == other.sentence;
 };
 
 /**
