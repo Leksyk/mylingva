@@ -2,18 +2,23 @@ var readingState = null;
 var messagePort = null;
 var wordManager = null;
 var pageMenu = null;
+var extensionId = null;
 
-function reconnectToExtension(extId) {
+function reconnectToExtension() {
   if (messagePort) {
     try {
       messagePort.disconnect();
+    } catch (e) {
+      console.warn('Failed on messagePort.disconnect(). Likely lost the extension. Ignoring.');
     } finally {
       messagePort = null;
-      wordManager = null;
-      readingState = null;
     }
   }
-  messagePort = chrome.runtime.connect(extId);
+  messagePort = chrome.runtime.connect(extensionId);
+  messagePort.onDisconnect.addListener(function() {
+    console.warn('Disconnected from the extension port. Reconnecting...');
+    setTimeout(reconnectToExtension, 50);
+  });
 }
 
 /**
@@ -26,6 +31,7 @@ function reconnectToExtension(extId) {
  */
 function init(extId, language) {
   console.log('init', arguments);
+  extensionId = extId;
   reconnectToExtension(extId);
   readingState = new ReadingState(false);
   pageMenu = new PageMenuModule(extId);
@@ -73,10 +79,23 @@ function updateWords(words) {
  */
 function communicateWordUpdatesToLocalDb(wordKeyStr) {
   var wordKey = WordKey.parse(wordKeyStr);
-  messagePort.postMessage({
+  var message = {
     method: 'save-words',
     words: JSON.stringify([readingState.getWordUpdates(wordKey)])
-  })
+  };
+  if (messagePort == null) {
+    reconnectToExtension();
+  }
+  for (var i = 0, attempts = 3; i < attempts; ++i) {
+    try {
+      messagePort.postMessage(message);
+      break;
+    } catch (e) {
+      // If extension got restarted we lose the connection and get error here.
+      console.warn('Error while posting message', e, 'Reconnecting...');
+      reconnectToExtension();
+    }
+  }
 }
 
 chrome.runtime.onMessage.addListener(
