@@ -16,6 +16,9 @@ MenuCnt = function($scope) {
       $scope.stats[record[0]] = record[1];
     }
   });
+  $scope.$on('select-word', function(wordKey) {
+    // TODO: Fetch the word and show details.
+  });
   console.log('MenuCnt created.');
 };
 
@@ -34,6 +37,11 @@ PageMenuModule.prototype.updateWordStats = function(stats) {
   console.info('Updating word statistics: ', stats);
   this.rootScope_.$apply(this.rootScope_.$broadcast.bind(
       this.rootScope_, 'update-stats', stats));
+};
+
+PageMenuModule.prototype.selectWord = function(wordKey) {
+  this.rootScope_.$apply(this.rootScope_.$broadcast.bind(
+      this.rootScope_, 'select-word', wordKey));
 };
 
 PageMenuModule.prototype.buildUi = function() {

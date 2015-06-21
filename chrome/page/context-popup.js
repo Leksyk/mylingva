@@ -17,7 +17,6 @@ ContextPopup.prototype.updateSelectedWord_ = function(wordStatus) {
   var wordKeyString = this.wordKey_.valueOf();
   this.wordManager_.updateWordStatus(wordKeyString, wordStatus);
   this.wordManager_.persistStatusChangeInReadingState(wordKeyString, wordStatus);
-  communicateWordUpdatesToLocalDb(wordKeyString);
 };
 
 /**

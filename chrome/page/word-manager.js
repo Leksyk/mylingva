@@ -14,14 +14,16 @@ var CSS_CLASS_LIST = ['mylingva-known-word', 'mylingva-unknown-word',
  * @param {!Element} pageContent
  * @param {!Lang} language
  * @param {!ReadingState} readingState
+ * @param {!TargetPageDispatcher} dispatcher
  * @param {boolean} incognitoMode
  * @param {?string} url
  * @constructor
  */
-WordManager = function(pageContent, language, readingState, incognitoMode, url) {
+WordManager = function(pageContent, language, readingState, dispatcher, incognitoMode, url) {
   this.pageContent_ = pageContent;
   this.language_ = language;
   this.readingState_ = readingState;
+  this.dispatcher_ = dispatcher;
   this.incognitoMode_ = incognitoMode;
   this.url_ = url;
 };
@@ -44,6 +46,8 @@ WordManager.prototype.persistStatusChangeInReadingState =
   parameter[wordKeyStr] = wordStatus;
   
   this.readingState_.setWordsStatuses(parameter);
+  var wordUpdates = [this.readingState_.getWordUpdates(WordKey.parse(wordKeyStr))];
+  this.dispatcher_.updateWords(wordUpdates);
 };
 
 /**

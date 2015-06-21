@@ -1,127 +1,160 @@
-var readingState = null;
-var messagePort = null;
-var wordManager = null;
-var pageMenu = null;
-var extensionId = null;
+/**
+ * Communicates messages to the extensions.
+ * @constructor
+ */
+TargetPageDispatcher = function(extensionId) {
+  /** @private {string} */
+  this.extensionId_ = extensionId;
+  this.reconnectToExtension_();
+};
 
-function reconnectToExtension() {
-  if (messagePort) {
+TargetPageDispatcher.prototype.reconnectToExtension_ = function(opt_continuation) {
+  if (this.port_) {
     try {
-      messagePort.disconnect();
+      this.port_.disconnect();
     } catch (e) {
-      console.warn('Failed on messagePort.disconnect(). Likely lost the extension. Ignoring.');
+      console.warn('Failed on port.disconnect(). Likely lost the extension. Ignoring.');
     } finally {
-      messagePort = null;
+      this.port_ = null;
     }
   }
-  messagePort = chrome.runtime.connect(extensionId);
-  messagePort.onDisconnect.addListener(function() {
+  var retryLater = setTimeout.bind(window, this.reconnectToExtension_.bind(this), 1000);
+  try {
+    this.port_ = chrome.runtime.connect(this.extensionId_);
+  } catch (e) {
+    console.warn('Unable to connect to the extension. Will try again', e);
+    retryLater();
+    return;
+  }
+  this.port_.onDisconnect.addListener(function() {
     console.warn('Disconnected from the extension port. Reconnecting...');
-    setTimeout(reconnectToExtension, 50);
+    retryLater();
   });
-}
+  if (opt_continuation) {
+    opt_continuation();
+  }
+};
+
+TargetPageDispatcher.prototype.sendInternal_ = function(message) {
+  var sendMessage = function(msg) {
+    // Do not bind to port since its instance might change.
+    this.port_.postMessage(msg);
+  }.bind(this, message);
+  try {
+    sendMessage();
+  } catch (e) {
+    this.reconnectToExtension_(sendMessage);
+  }
+};
+
+/**
+ * Communicates the updates/contexts of the given word to the extensions. Updates/contexts are
+ * taken from the ReadingState.
+ * @param {!Array<!WordUpdates>}
+ */
+TargetPageDispatcher.prototype.updateWords = function(wordUpdates) {
+  this.sendInternal_({
+    method: 'save-words',
+    words: JSON.stringify(wordUpdates)
+  });
+};
+
+/**
+ * Root controller for the target page code. Connects all the pieces of target page code together.
+ *
+ * @constructor
+ * @param {string} extId
+ * @param {boolean} incognitoMode
+ * @param {!Lang} language
+ */
+TargetPageRootController = function(extId, incognitoMode, language) {
+  console.log('TargetPageRootController()', arguments);
+  this.dispatcher_ = new TargetPageDispatcher(extId);
+  /** @private {!ReadingState} */
+   this.readingState_ = new ReadingState(false);
+  /** @private {!PageMenuModule} */
+   this.pageMenu_ = new PageMenuModule(extId);
+   this.pageMenu_.buildUi();
+  /** @private {!WordManager} */
+   this.wordManager_ = new WordManager(document.documentElement, language,
+       this.readingState_, this.dispatcher_, incognitoMode, window.location.toString());
+};
 
 /**
  * Initializes the extension within the target page.
  * Returns list of all the words used in the page.
  *
- * @param {string} extId
- * @param {boolean} saveContexts
- * @param {!Lang} language
  * @return {!Array<string>} string representation of WordKey(s).
  */
-function init(extId, incognitoMode, language) {
-  console.log('init', arguments);
-  extensionId = extId;
-  reconnectToExtension(extId);
-  readingState = new ReadingState(false);
-  pageMenu = new PageMenuModule(extId);
-  pageMenu.buildUi();
-  wordManager = new WordManager(document.documentElement, language, readingState,
-      incognitoMode, window.location.toString());
+TargetPageRootController.prototype.init = function() {
   // TODO: Convert this to async operation and call the extension back once done.
-  wordManager.processPageContent();
-  return readingState.getWordsKeyStrs();
-}
-
-/**
- * Accepts the mapping from words to their statuses as known by the extension.
- * @param {!Object<string, !WordStatus>} wordToStatus - word is string representation of WordKey.
- */
-function setWordsStatuses(wordToStatus) {
-  readingState.setWordsStatuses(wordToStatus);
-  for (var wordKeyStr of Object.keys(wordToStatus)) {
-    var status = wordToStatus[wordKeyStr];
-    wordManager.updateWordStatus(wordKeyStr, status);
-  }
-  pageMenu.updateWordStats(readingState.getWordStats());
-}
+  this.wordManager_.processPageContent();
+  return this.readingState_.getWordsKeyStrs();
+};
 
 /**
  * Updates the given words on the page, reading state and menus.
  *
  * @param {!Array<!Word>} words
  */
-function updateWords(words) {
+TargetPageRootController.prototype.updateWords = function(words) {
   var wordToStatus = {};
   for (var word of words) {
-    wordManager.updateWordStatus(Word.prototype.getKey.call(word).valueOf(), word.status);
+    this.wordManager_.updateWordStatus(Word.prototype.getKey.call(word).valueOf(), word.status);
     // The deserialized word doesn't have the right prototype set so need to call this way.
     var wordKey = Word.prototype.getKey.call(word);
     wordToStatus[wordKey.valueOf()] = word.status;
   }
-  readingState.setWordsStatuses(wordToStatus);
-  pageMenu.updateWordStats(readingState.getWordStats());
-}
+  this.readingState_.setWordsStatuses(wordToStatus);
+  this.pageMenu_.updateWordStats(this.readingState_.getWordStats());
+};
 
 /**
- * Given that all the updates are made to the readingState, communicates
- * those updates (to the given word) to the localDb (hosted in the extension).
- * TODO: Give this as a callback to the popup UI.
+ * Accepts the mapping from words to their statuses as known by the extension.
+ * @param {!Object<string, !WordStatus>} wordToStatus - word is string representation of WordKey.
  */
-function communicateWordUpdatesToLocalDb(wordKeyStr) {
-  var wordKey = WordKey.parse(wordKeyStr);
-  var message = {
-    method: 'save-words',
-    words: JSON.stringify([readingState.getWordUpdates(wordKey)])
-  };
-  if (messagePort == null) {
-    reconnectToExtension();
+TargetPageRootController.prototype.setWordsStatuses = function(wordToStatus) {
+  this.readingState_.setWordsStatuses(wordToStatus);
+  for (var wordKeyStr of Object.keys(wordToStatus)) {
+    var status = wordToStatus[wordKeyStr];
+    this.wordManager_.updateWordStatus(wordKeyStr, status);
   }
-  for (var i = 0, attempts = 3; i < attempts; ++i) {
-    try {
-      messagePort.postMessage(message);
-      break;
-    } catch (e) {
-      // If extension got restarted we lose the connection and get error here.
-      console.warn('Error while posting message', e, 'Reconnecting...');
-      reconnectToExtension();
-    }
-  }
-}
+  this.pageMenu_.updateWordStats(this.readingState_.getWordStats());
+};
 
-chrome.runtime.onMessage.addListener(
-    function(message, sender, sendResponse) {
-      console.info(message.method, message);
-      try {
-        switch (message.method) {
-          case 'init':
-            sendResponse(init(message.extId, message.incognitoMode, message.language));
-            break;
+TargetPageRootController.prototype.selectWord = function(wordKey) {
+  this.pageMenu_.selectWord(wordKey);
+};
 
-          case 'set-words-statuses':
-            setWordsStatuses(message.wordToStatus);
-            break;
+(function() {
+  var rootController = null;
 
-          case 'update-words':
-            updateWords(message.words);
-            break;
+  chrome.runtime.onMessage.addListener(
+      function (message, sender, sendResponse) {
+        console.info(message.method, message);
+        try {
+          switch (message.method) {
+            case 'init':
+              rootController = new TargetPageRootController(
+                  message.extId, message.incognitoMode, message.language);
+              var response = rootController.init();
+              sendResponse(response);
+              break;
 
-          default:
-            console.error('Unrecognized message: ' + JSON.stringify(message));
+            case 'set-words-statuses':
+              rootController.setWordsStatuses(message.wordToStatus);
+              break;
+
+            case 'update-words':
+              rootController.updateWords(message.words);
+              break;
+
+            default:
+              console.error('Unrecognized message: ' + JSON.stringify(message));
+          }
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
       }
-    }
-);
+  );
+})();
