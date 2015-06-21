@@ -50,11 +50,15 @@ TargetPageDispatcher.prototype.sendInternal_ = function(message) {
 /**
  * Communicates the updates/contexts of the given word to the extensions. Updates/contexts are
  * taken from the ReadingState.
- * @param {!Array<!WordUpdates>}
+ *
+ * @param {!Array<!WordUpdates>} wordUpdates
+ * @param {?string} url
+ *
  */
-TargetPageDispatcher.prototype.updateWords = function(wordUpdates) {
+TargetPageDispatcher.prototype.updateWords = function(wordUpdates, url) {
   this.sendInternal_({
     method: 'save-words',
+    url: url,
     words: JSON.stringify(wordUpdates)
   });
 };

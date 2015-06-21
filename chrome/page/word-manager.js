@@ -47,7 +47,7 @@ WordManager.prototype.persistStatusChangeInReadingState =
   
   this.readingState_.setWordsStatuses(parameter);
   var wordUpdates = [this.readingState_.getWordUpdates(WordKey.parse(wordKeyStr))];
-  this.dispatcher_.updateWords(wordUpdates);
+  this.dispatcher_.updateWords(wordUpdates, this.incognitoMode_ ? null : this.url_);
 };
 
 /**

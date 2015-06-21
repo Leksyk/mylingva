@@ -22,6 +22,7 @@ function setupGoogleAnalytics() {
 
 /**
  * Sends start event for the given url and language.
+ *
  * @param {string} url
  * @param {Lang} lang
  */
@@ -33,5 +34,44 @@ function sendStartEvent(url, lang) {
       eventAction: 'init',
       page: url,
       eventLabel: ''
+  });
+}
+
+/**
+ * Sends event that the user changed status of the word.
+ *
+ * @param {?string} url
+ * @param {Lang} lang
+ * @param {!WordKey} wordKey
+ * @param {!WordStatus} wordStatus
+ */
+function sendWordSetStatusEvent(url, wordKey, wordStatus) {
+  ga('set', 'dimention1', Lang.toCode(wordKey.lang));
+  ga('send', {
+    hitType: 'event',
+    page: url,
+    eventCategory: 'edit',
+    eventAction: 'set-status',
+    eventLabel: wordKey.valueOf(),
+    eventValue: wordStatus
+  });
+}
+
+/**
+ * Sends event that the user changed status of the word.
+ *
+ * @param {?string} url
+ * @param {!WordKey} wordKey
+ * @param {number} numContexts
+ */
+function sendWordAddContextsEvent(url, wordKey, numContexts) {
+  ga('set', 'dimention1', Lang.toCode(wordKey.lang));
+  ga('send', {
+    hitType: 'event',
+    page: url,
+    eventCategory: 'edit',
+    eventAction: 'add-contexts',
+    eventLabel: wordKey.valueOf(),
+    eventValue: numContexts
   });
 }

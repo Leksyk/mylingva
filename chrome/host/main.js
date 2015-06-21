@@ -120,15 +120,23 @@ function detectLanguage(tabId, callback) {
  * Persists the given updates to the local-db.
  *
  * @param {!Array<!WordUpdates>} words
+ * @param {?string} url
  */
-function saveWords(words) {
+function saveWords(words, url) {
   var localDb = new LocalDb();
   var updatedWordKeys = [];
   for (var updates of words) {
     console.log('Persisting update: ', updates);
     if (updates.status) {
       var word = new Word(updates.wordKey.word, updates.wordKey.lang, updates.status);
-      localDb.save(word, updates.new_contexts);
+      var wordKey = word.getKey();
+      var result = localDb.save(word, updates.new_contexts);
+      if (result.statusUpdated) {
+        sendWordSetStatusEvent(url, wordKey, updates.status);
+      }
+      if (result.numContextsAdded) {
+        sendWordAddContextsEvent(url, wordKey, result.numContextsAdded);
+      }
     }
     updatedWordKeys.push(updates.wordKey);
   }
@@ -191,7 +199,7 @@ chrome.runtime.onConnect.addListener(function(port) {
       switch (msg.method) {
         case 'save-words':
           var words = JSON.parse(msg.words);
-          saveWords(words);
+          saveWords(words, msg.url);
           break;
 
         default:

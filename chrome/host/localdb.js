@@ -1,4 +1,18 @@
 /**
+ * Result of the LocalDb.save operation.
+ *
+ * @param {boolean} statusUpdated
+ * @param {number} numContextsAdded
+ * @constructor
+ */
+SaveResult = function(statusUpdated, numContextsAdded) {
+  /** @type {boolean} */
+  this.statusUpdated = statusUpdated;
+  /** @type {number} */
+  this.numContextsAdded = numContextsAdded;
+};
+
+/**
  * Persistent in-browser storage for user's dictionary.
  *
  * @constructor
@@ -48,7 +62,10 @@ LocalDb.prototype.lookupContexts = function(wordKey, opt_limit) {
  */
 LocalDb.prototype.save = function(word, new_contexts) {
   var value = this.fetchStorageObject_(word);
+  var statusUpdated = false;
+  var numContextsAdded = 0;
   if (value) {
+    statusUpdated = value.word.status != word.status;
     value.word = word;
     if (new_contexts && new_contexts.length > 0) {
       value.contexts = value.contexts || [];
@@ -57,17 +74,21 @@ LocalDb.prototype.save = function(word, new_contexts) {
         // If not yet there add it to the contexts.
         if ($.grep(value.contexts, predicate).length == 0) {
           value.contexts.push(ctx);
+          numContextsAdded += 1;
         }
       }
     }
   } else {
     value = this.createWordStorageObject_(word, new_contexts);
+    statusUpdated = true;
+    numContextsAdded = new_contexts ? new_contexts.length : 0;
   }
   if (value.contexts && value.contexts.length > Consts.MAX_CONTEXTS_PER_WORD) {
     // Take the top N most freshest contexts.
     value.contexts = value.contexts.slice(value.contexts.length - Consts.MAX_CONTEXTS_PER_WORD);
   }
   this.saveStorageObject_(word, value);
+  return new SaveResult(statusUpdated, numContextsAdded);
 };
 
 /**
