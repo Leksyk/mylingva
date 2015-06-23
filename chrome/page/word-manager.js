@@ -170,6 +170,14 @@ WordManager.prototype.processWords_ = function(text, domElement) {
           wordSpan.addEventListener('mouseover', function(e) {
         	  var contextPopup = new ContextPopup(this, wordKey);
         	  contextPopup.showContextPopup(e);
+        	  wordSpan.classList.add('mylingva-selected-word');
+          }.bind(this));
+          wordSpan.addEventListener('mouseout', function(e) {
+        	  var contextPopup = new ContextPopup(this, wordKey);	  
+        	  if (e.toElement.id != 'mylingva-context-popup') {
+        	    contextPopup.hideContextPopup(e);
+        	    wordSpan.classList.remove('mylingva-selected-word');
+        	  }
           }.bind(this));
           domElement.appendChild(wordSpan);
           return wordSpan;

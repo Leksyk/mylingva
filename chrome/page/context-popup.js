@@ -49,8 +49,10 @@ ContextPopup.prototype.getStatusMenuOption_ = function(wordStatus) {
  * @param {WordStatus} wordStatus
  */
 ContextPopup.prototype.addMenuOption_ = function(menu, wordStatus) {
-  var optionItem = document.createElement('p');
-  optionItem.innerHTML = this.getStatusMenuOption_(wordStatus).toUpperCase();
+  var optionItem = document.createElement('img');
+  optionItem.classList.add('mylingva-status-button');
+  optionItem.src = chrome.extension.getURL('page/resources/'
+      + this.getStatusMenuOption_(wordStatus) + '-word.png');
   
   var self = this;
   optionItem.addEventListener('click', function(e) {
@@ -60,24 +62,34 @@ ContextPopup.prototype.addMenuOption_ = function(menu, wordStatus) {
 
 /**
  * Creates an UpdateMenu DOM element and returns it.
+ * @param {Element} wordSpan
  * @returns {Element}
  */
-ContextPopup.prototype.createUpdateMenu_ = function() {
+ContextPopup.prototype.createUpdateMenu_ = function(wordSpan) {
   this.hideContextPopup();
 	
   var contextMenu = document.createElement('div');
 
-  var menuHeader = document.createElement('p');
-  menuHeader.innerHTML = 'Set word status for "' + this.wordKey_.word + '":';
-  contextMenu.appendChild(menuHeader);
+  var statusMenuHeader = document.createElement('p');
+  statusMenuHeader.innerHTML = 'Set word status:';
+  statusMenuHeader.classList.add('mylingva-small-text');
+  contextMenu.appendChild(statusMenuHeader);
 
-  this.addMenuOption_(contextMenu, WordStatus.IGNORED);
-  this.addMenuOption_(contextMenu, WordStatus.UNKNOWN);
-  this.addMenuOption_(contextMenu, WordStatus.FAMILIAR);
-  this.addMenuOption_(contextMenu, WordStatus.KNOWN);
+  var statusMenu = document.createElement('p');
+  this.addMenuOption_(statusMenu, WordStatus.IGNORED);
+  this.addMenuOption_(statusMenu, WordStatus.UNKNOWN);
+  this.addMenuOption_(statusMenu, WordStatus.FAMILIAR);
+  this.addMenuOption_(statusMenu, WordStatus.KNOWN);
+  contextMenu.appendChild(statusMenu);
 
   contextMenu.setAttribute('id', 'mylingva-context-popup');
   contextMenu.classList.add('mylingva-context-popup');
+  contextMenu.addEventListener('mouseout', function(e) {
+    if (!document.getElementById('mylingva-context-popup').contains(e.toElement))  {
+  	  this.hideContextPopup(e);
+  	  wordSpan.classList.remove('mylingva-selected-word');
+  	}
+  }.bind(this));
 
   document.documentElement.appendChild(contextMenu);
 
@@ -89,10 +101,12 @@ ContextPopup.prototype.createUpdateMenu_ = function() {
  * @param {Event} e
  */
 ContextPopup.prototype.showContextPopup = function(e) {
-  var contextPopup = this.createUpdateMenu_();
+  var contextPopup = this.createUpdateMenu_(e.target);
 
-  contextPopup.style.left = pageXOffset + e.clientX + 'px';
-  contextPopup.style.top = pageYOffset + e.clientY + 'px';
+  var popupRect = e.target.getBoundingClientRect();
+  
+  contextPopup.style.left = popupRect.left + 'px';
+  contextPopup.style.top = popupRect.bottom + 'px';
 };
 
 /**

@@ -157,7 +157,7 @@ var CLIENT_SCRIPTS = [
   'libs/angular.js',
   'libs/jquery.js',
   'page/menu.js',
-  'page/main.js'
+  'page/main.js',
 ];
 
 chrome.browserAction.onClicked.addListener(function(tab) {

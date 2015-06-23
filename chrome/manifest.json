@@ -17,7 +17,11 @@
   },
 
   "web_accessible_resources": [
-    "page/menu.html"
+    "page/menu.html",
+    "page/resources/unknown-word.png",
+    "page/resources/known-word.png",
+    "page/resources/familiar-word.png",
+    "page/resources/ignored-word.png"
   ],
 
   "options_page": "host/ui/options.html",
