@@ -38,9 +38,6 @@
   },
 
   "permissions": [
-    "tabs",
-    "activeTab",
-    "notifications"
   ],
 
   "optional_permissions": [
