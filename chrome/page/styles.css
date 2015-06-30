@@ -1,35 +1,33 @@
 .mylingva-context-popup:before {
-	border-color: rgba(194, 225, 245, 0);
-	border-bottom-color: #c2e1f5;
-	border-width: 36px;
-	margin-left: -36px;
+  border-color: rgba(194, 225, 245, 0);
+  border-bottom-color: #c2e1f5;
+  border-width: 36px;
+  margin-left: -36px;
 }
 
 div.mylingva-context-popup {
-  border:1px #ABABAB;
-  border-radius: 20px;
-  background: rgba(210,210,210,0.95);
+  border:1px #ABABAB !important;
+  border-radius: 20px !important;
+  background: rgba(210,210,210,0.95) !important;
   position:absolute;
-  line-height:30px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
   visibility: visible;
-}
-
-.mylingva-small-text {
-	display: block;
-	color: full black;
-	font-size: 13px;
-	padding-top: 5px;
+  z-index: 10000000000; /* Really want to be on the top. */
 }
 
 .mylingva-status-button {
-	height: 20px;
-	width: 20px;
-	padding-top: 3px;
-    padding-right: 3px;
-    padding-bottom: 3px;
-    padding-left: 3px;
+  height: 1em;
+  width: 1em;
+  padding-top: 3px;
+  padding-right: 3px;
+  padding-bottom: 3px;
+  padding-left: 3px;
+}
+
+.mylingva-onhover-status-button {
+  -webkit-filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8)); 
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
 }
 
 .mylingva-selected-word {
@@ -66,8 +64,9 @@ span.mylingva-ignored-word {
   position: fixed;
   right: 0;
   top: 0;
-  background-color: white;
-  border: 1px grey solid;
-  padding: 2px;
-  margin: 2px;
+  border:1px #ABABAB !important;
+  border-radius: 20px !important;
+  background: rgba(210,210,210,0.95) !important;
+  padding: 10px !important;
+  margin: 2px !important;
 }

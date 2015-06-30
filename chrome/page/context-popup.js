@@ -48,8 +48,9 @@ ContextPopup.prototype.getStatusMenuOption_ = function(wordStatus) {
  * @param {Element} menu
  * @param {WordStatus} wordStatus
  */
-ContextPopup.prototype.addMenuOption_ = function(menu, wordStatus) {
+ContextPopup.prototype.addMenuOption_ = function(menu, wordStatus, title) {
   var optionItem = document.createElement('img');
+  optionItem.title = title;
   optionItem.classList.add('mylingva-status-button');
   optionItem.src = chrome.extension.getURL('page/resources/'
       + this.getStatusMenuOption_(wordStatus) + '-word.png');
@@ -57,6 +58,11 @@ ContextPopup.prototype.addMenuOption_ = function(menu, wordStatus) {
   var self = this;
   optionItem.addEventListener('click', function(e) {
 	  self.updateSelectedWord_(wordStatus);});
+  optionItem.addEventListener('mouseover', function(e) {
+	  optionItem.classList.add('mylingva-onhover-status-button'); });
+  optionItem.addEventListener('mouseout', function(e) {
+	  optionItem.classList.remove('mylingva-onhover-status-button'); });
+  
   menu.appendChild(optionItem);
 };
 
@@ -70,16 +76,12 @@ ContextPopup.prototype.createUpdateMenu_ = function(wordSpan) {
 	
   var contextMenu = document.createElement('div');
 
-  var statusMenuHeader = document.createElement('p');
-  statusMenuHeader.innerHTML = 'Set word status:';
-  statusMenuHeader.classList.add('mylingva-small-text');
-  contextMenu.appendChild(statusMenuHeader);
-
   var statusMenu = document.createElement('p');
-  this.addMenuOption_(statusMenu, WordStatus.IGNORED);
-  this.addMenuOption_(statusMenu, WordStatus.UNKNOWN);
-  this.addMenuOption_(statusMenu, WordStatus.FAMILIAR);
-  this.addMenuOption_(statusMenu, WordStatus.KNOWN);
+
+  this.addMenuOption_(statusMenu, WordStatus.IGNORED, 'Ignore this word.');
+  this.addMenuOption_(statusMenu, WordStatus.UNKNOWN, 'I don\'t know this word.');
+  this.addMenuOption_(statusMenu, WordStatus.FAMILIAR, 'I am familiar with this word.');
+  this.addMenuOption_(statusMenu, WordStatus.KNOWN, 'I know this word.');
   contextMenu.appendChild(statusMenu);
 
   contextMenu.setAttribute('id', 'mylingva-context-popup');
@@ -105,8 +107,8 @@ ContextPopup.prototype.showContextPopup = function(e) {
 
   var popupRect = e.target.getBoundingClientRect();
   
-  contextPopup.style.left = popupRect.left + 'px';
-  contextPopup.style.top = popupRect.bottom + 'px';
+  contextPopup.style.left = window.pageXOffset + popupRect.left + 'px';
+  contextPopup.style.top = window.pageYOffset + popupRect.bottom + 'px';
 };
 
 /**
@@ -114,7 +116,7 @@ ContextPopup.prototype.showContextPopup = function(e) {
  */
 ContextPopup.prototype.hideContextPopup = function() {
   var element = document.getElementById('mylingva-context-popup');
-
+  
   if (element) {
     element.parentElement.removeChild(element);
   }
