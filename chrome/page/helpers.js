@@ -20,6 +20,17 @@ function isDomElementVisible(element) {
   return true;
 }
 
+function isChild(element, parentId) {
+  while (element != null) {
+    if (element.id == parentId) {
+      return true;
+    } else {
+      element = element.parentNode;
+    }
+  }
+  return false;
+}
+
 /**
  * Returns the formatted text: no special characters at the ends of the string, no extra spaces.
  * @param {string} text

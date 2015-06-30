@@ -26,6 +26,8 @@ WordManager = function(pageContent, language, readingState, dispatcher, incognit
   this.dispatcher_ = dispatcher;
   this.incognitoMode_ = incognitoMode;
   this.url_ = url;
+  /** @private {ContextPopup} */
+  this.shownPopup_ = null;
 };
 
 /**
@@ -168,14 +170,16 @@ WordManager.prototype.processWords_ = function(text, domElement) {
           wordSpan.innerHTML = ' ' + word;
           wordSpan.setAttribute('name', wordKey.valueOf());
           wordSpan.addEventListener('mouseover', function(e) {
-        	  var contextPopup = new ContextPopup(this, wordKey);
-        	  contextPopup.showContextPopup(e);
+            console.log('mouseover', e);
+            this.hidePopupIfShown();
+        	  this.shownPopup_ = new ContextPopup(this, wordKey);
+            this.shownPopup_.showContextPopup(e);
         	  wordSpan.classList.add('mylingva-selected-word');
           }.bind(this));
           wordSpan.addEventListener('mouseout', function(e) {
-        	  var contextPopup = new ContextPopup(this, wordKey);	  
-        	  if (e.toElement.id != 'mylingva-context-popup') {
-        	    contextPopup.hideContextPopup(e);
+            console.log('mouseout', e);
+        	  if (this.shownPopup_ && !isChild(e.toElement, 'mylingva-context-popup')) {
+              this.shownPopup_.hideContextPopup();
         	    wordSpan.classList.remove('mylingva-selected-word');
         	  }
           }.bind(this));
@@ -191,6 +195,16 @@ WordManager.prototype.processWords_ = function(text, domElement) {
         var textNode = document.createTextNode(' ' + word);  
         domElement.appendChild(textNode);
       }
+    }
+  }
+};
+
+WordManager.prototype.hidePopupIfShown = function() {
+  if (this.shownPopup_ != null) {
+    try {
+      this.shownPopup_.hideContextPopup();
+    } finally {
+      this.shownPopup_ = null;
     }
   }
 };

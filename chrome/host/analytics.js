@@ -41,7 +41,6 @@ function sendStartEvent(url, lang) {
  * Sends event that the user changed status of the word.
  *
  * @param {?string} url
- * @param {Lang} lang
  * @param {!WordKey} wordKey
  * @param {!WordStatus} wordStatus
  */

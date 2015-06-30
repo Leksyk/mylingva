@@ -159,7 +159,7 @@ LocalDb.prototype.createWordStorageObject_ = function(word, opt_contexts, opt_re
 };
 
 /**
- * @private {!Word|!WordKey}
+ * @param {!Word|!WordKey} wordKey
  * @return {!Object}
  * @private
  */

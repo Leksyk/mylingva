@@ -76,7 +76,7 @@ ContextPopup.prototype.createUpdateMenu_ = function(wordSpan) {
 	
   var contextMenu = document.createElement('div');
 
-  var statusMenu = document.createElement('p');
+  var statusMenu = document.createElement('div');
 
   this.addMenuOption_(statusMenu, WordStatus.IGNORED, 'Ignore this word.');
   this.addMenuOption_(statusMenu, WordStatus.UNKNOWN, 'I don\'t know this word.');
@@ -106,7 +106,7 @@ ContextPopup.prototype.showContextPopup = function(e) {
   var contextPopup = this.createUpdateMenu_(e.target);
 
   var popupRect = e.target.getBoundingClientRect();
-  
+
   contextPopup.style.left = window.pageXOffset + popupRect.left + 'px';
   contextPopup.style.top = window.pageYOffset + popupRect.bottom + 'px';
 };

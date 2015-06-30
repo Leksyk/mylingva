@@ -1,3 +1,8 @@
+/**
+ * @param $scope
+ * @param localDb
+ * @constructor
+ */
 SettingsCnt = function($scope, localDb) {
   this.localDb_ = localDb;
   this.storageListener_ = this.onStorageUpdate_.bind(this);
