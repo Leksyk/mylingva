@@ -13,7 +13,8 @@ Lang = {
   ENGLISH: 1,
   UKRAINIAN: 2,
   ROMANIAN: 3,
-  POLISH: 4
+  POLISH: 4,
+  GERMAN: 5
 };
 
 /** @const */
@@ -21,7 +22,8 @@ Lang.list = [
   {id: Lang.ENGLISH, code: 'en', name: 'English'},
   {id: Lang.UKRAINIAN, code: 'uk', name: 'Українська'},
   {id: Lang.ROMANIAN, code: 'ro', name: 'Român'},
-  {id: Lang.POLISH, code: 'pl', name: 'Polski'}
+  {id: Lang.POLISH, code: 'pl', name: 'Polski'},
+  {id: Lang.GERMAN, code: 'de', name: 'Deutsch'}
 ];
 
 /** @type {!Object<string, !Object>} */
