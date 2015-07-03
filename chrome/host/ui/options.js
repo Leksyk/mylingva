@@ -14,6 +14,7 @@ SettingsCnt = function($scope, localDb) {
   $scope.langs.used = [];
   $scope.langs.list = Lang.list;
   $scope.langs.toName = function(id) { return Lang.byId[id].name; };
+  $scope.langs.toCode = function(id) { return Lang.byId[id].code; };
   $scope.langs.selected = '';
   $scope.statusToName = WordStatus.friendlyName;
 
@@ -32,8 +33,15 @@ SettingsCnt = function($scope, localDb) {
 };
 
 angular.module('mylingva-options', [])
-    .value('localDb', new LocalDb())
-    .controller('SettingsCnt', SettingsCnt);
+  .value('localDb', new LocalDb())
+  .controller('SettingsCnt', SettingsCnt)
+  .config(function($compileProvider) {
+    // This is needed so that angular doesn't cripple links and images pointing
+    // to the extension's resources.
+    var whitelist = /^\s*(https?|ftp|mailto|chrome-extension):/;
+    $compileProvider.aHrefSanitizationWhitelist(whitelist);
+    $compileProvider.imgSrcSanitizationWhitelist(whitelist);
+  });
 
 SettingsCnt.prototype.attachLocalStorageListener_ = function() {
   window.addEventListener('storage', this.storageListener_);

@@ -1,2 +1,5 @@
-### Icons credits
-* The main app icon: http://findicons.com/icon/67060/accessories_dictionary?id=67551
+## Icons credits
+
+* The main app icon: http://findicons.com
+
+* Flags icons: http://lipis.github.io/flag-icon-css/

@@ -42,7 +42,13 @@ body {
 }
 
 .col-lang {
-  width: 5em;
+  width: 2em;
+  text-align: center;
+}
+
+.col-lang img {
+  width: 16px;
+  height: 16px;
 }
 
 .col-word {

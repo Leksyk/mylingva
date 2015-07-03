@@ -17,6 +17,7 @@
   },
 
   "web_accessible_resources": [
+    "icons/langs/*.svg",
     "page/menu.html",
     "page/resources/unknown-word.png",
     "page/resources/known-word.png",
