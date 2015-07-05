@@ -59,9 +59,11 @@ ContextPopup.prototype.addMenuOption_ = function(menu, wordStatus, title) {
   optionItem.addEventListener('click', function(e) {
 	  self.updateSelectedWord_(wordStatus);});
   optionItem.addEventListener('mouseover', function(e) {
-	  optionItem.classList.add('mylingva-onhover-status-button'); });
+	  optionItem.src = chrome.extension.getURL('page/resources/onhover-'
+		      + self.getStatusMenuOption_(wordStatus) + '-word.png'); });
   optionItem.addEventListener('mouseout', function(e) {
-	  optionItem.classList.remove('mylingva-onhover-status-button'); });
+	  optionItem.src = chrome.extension.getURL('page/resources/'
+		      + self.getStatusMenuOption_(wordStatus) + '-word.png'); });
   
   menu.appendChild(optionItem);
 };

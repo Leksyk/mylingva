@@ -25,11 +25,6 @@ div.mylingva-context-popup {
   padding-left: 3px;
 }
 
-.mylingva-onhover-status-button {
-  -webkit-filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8)); 
-  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
-}
-
 .mylingva-selected-word {
   text-shadow: 3px 1px 4px #7A8A85;
 }

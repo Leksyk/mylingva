@@ -19,10 +19,7 @@
   "web_accessible_resources": [
     "icons/langs/*.svg",
     "page/menu.html",
-    "page/resources/unknown-word.png",
-    "page/resources/known-word.png",
-    "page/resources/familiar-word.png",
-    "page/resources/ignored-word.png"
+    "page/resources/*.png"
   ],
 
   "options_page": "host/ui/options.html",
