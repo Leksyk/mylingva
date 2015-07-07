@@ -29,3 +29,6 @@ What is being reported to Google Analytics:
 
 All of the above is anonymous and we are not able to identify which actions are done by whom.
 
+## How can I try it out?
+We are currently in the closed alpha mode. If you are interested in helping us to test the service, report bugs and provide ideas/suggestions please request membership in https://groups.google.com/forum/#!forum/mylingva and once approved you will get the access to MyLingva chrome extension and information on how contact us and/or provide feedback
+
