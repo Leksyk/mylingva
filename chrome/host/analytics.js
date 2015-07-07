@@ -33,7 +33,8 @@ function sendStartEvent(url, lang) {
       eventCategory: 'read',
       eventAction: 'init',
       page: url,
-      eventLabel: ''
+      eventLabel: '',
+      eventValue: 0
   });
 }
 
