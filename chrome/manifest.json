@@ -36,7 +36,8 @@
     "16": "icons/main16.png",
     "48": "icons/main48.png",
     "32": "icons/main32.png",
-    "64": "icons/main64.png"
+    "64": "icons/main64.png",
+    "128": "icons/main128.png"
   },
 
   "commands": {
