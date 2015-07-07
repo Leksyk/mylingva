@@ -19,7 +19,7 @@ mkdir -p release/page
 cp -r common release
 cp -r host release
 cp -r page release
-cp icon.png release
+cp -r icons release
 cp manifest.json release
 
 rm -rf release/**/README.md
