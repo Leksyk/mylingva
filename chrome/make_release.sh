@@ -22,8 +22,15 @@ cp -r page release
 cp -r icons release
 cp manifest.json release
 
-rm -rf release/**/README.md
-rm -rf release/**/.gitignore
+# Replace development set of icons with the release ones.
+mv -f release/icons/main16_release.png release/icons/main16.png
+mv -f release/icons/main32_release.png release/icons/main32.png
+mv -f release/icons/main48_release.png release/icons/main48.png
+mv -f release/icons/main64_release.png release/icons/main64.png
+mv -f release/icons/main128_release.png release/icons/main128.png
+
+rm -f release/**/README.md
+rm -f release/**/.gitignore
 
 mkdir release/libs
 # For production using minimized scripts.
